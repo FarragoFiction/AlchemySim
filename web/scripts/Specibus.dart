@@ -1,7 +1,7 @@
 import 'JSONObject.dart';
 import "Item.dart";
 import "Trait.dart";
-import "../random.dart";
+import "random.dart";
 
 
 class Specibus extends Item {
