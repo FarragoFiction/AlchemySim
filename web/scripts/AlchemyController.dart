@@ -1,8 +1,8 @@
 import 'dart:html';
 import 'Item.dart';
-import 'random_tables.dart';
-import 'SBURBSim.dart';
-import 'navbar.dart';
+import 'dependencies/random_tables.dart';
+import 'dependencies/SBURBSim.dart';
+import 'dependencies/navbar.dart';
 import 'dart:async';
 
 

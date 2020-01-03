@@ -1,5 +1,5 @@
 import "Item.dart";
-import "SBURBSim.dart";
+import "dependencies/SBURBSim.dart";
 
 //rings and shit.
 class MagicalItem extends Item with StatOwner {

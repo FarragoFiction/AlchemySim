@@ -1,16 +1,16 @@
-import "Player.dart";
-import "GameEntity.dart";
-export "stat.dart";
+import "dependencies/Player.dart";
+import "dependencies/GameEntity.dart";
+export "dependencies/stat.dart";
 
-import 'lz-string.dart';
+import 'dependencies/lz-string.dart';
 import "Item.dart";
 import "MagicalItem.dart";
-import "random_tables.dart";
+import "dependencies/random_tables.dart";
 import "Trait.dart";
-import "random.dart";
+import "dependencies/random.dart";
 import 'dart:collection';
-import "NPCS.dart";
-import "SBURBSim.dart";
+import "dependencies/NPCS.dart";
+import "dependencies/SBURBSim.dart";
 import 'dart:html';
 
 //I expect aspects and interests to have lists of items inside of them.
