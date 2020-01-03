@@ -1,8 +1,11 @@
 import 'dart:html';
 import 'Item.dart';
 import 'dependencies/random_tables.dart';
+import 'Trait.dart';
 import 'dependencies/SBURBSim.dart';
 import 'dependencies/navbar.dart';
+import 'dependencies/Player.dart';
+import 'AlchemyResult.dart';
 import 'dart:async';
 
 
