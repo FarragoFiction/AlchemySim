@@ -1,8 +1,8 @@
 import "Item.dart";
 import "Trait.dart";
-import "../random_tables.dart";
+import "random_tables.dart";
 import "Player.dart";
-import "../SessionEngine/session.dart";
+import "session.dart";
 
 
 /*

@@ -1,4 +1,4 @@
-import "../GameEntities/player.dart";
+import "Player.dart";
 import "../GameEntities/GameEntity.dart";
 export "../GameEntities/Stats/stat.dart";
 

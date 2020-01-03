@@ -1,4 +1,4 @@
-import '../SessionEngine/JSONObject.dart';
+import 'JSONObject.dart';
 import "Item.dart";
 import "Trait.dart";
 import "../random.dart";
