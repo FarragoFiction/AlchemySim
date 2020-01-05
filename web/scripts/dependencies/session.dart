@@ -15,16 +15,6 @@ enum CanonLevel {
 class Session {
 
   static Session _defaultSession;
-  //will speed shogun bot up , who makes a LOT of default sessions for loading
-  //creating a session is slower than it used to be cuz it does all the init stuff too
-  //and sessions got REALLY big post npc update
-  static Session get  defaultSession {
-    if(_defaultSession == null) {
-      _defaultSession = new Session(-13);
-    }
-    return _defaultSession;
-
-  }
   //this will be set by reinit
   Completer<Session> completer; // PL: this handles the internal callback for awaiting a session!
 
@@ -52,17 +42,7 @@ class Session {
   Moon furthestRing;
   List<Moon> get moons => <Moon>[prospit, derse];
 
-  int get maxCarapaces => 12-players.length;
   int numActiveCarapaces = 0;
-
-  List<Land> get allLands {
-    List<Land> targets = new List<Land>();
-    for(Player p in players) {
-      if(p.land != null) targets.add(p.land);
-    }
-    targets.addAll(moons);
-    return targets;
-  }
 
   //used to be stored on moon, which was good and sane....but then what happens when the moon blows up.
   //crashes, that's what. and or there not being any more rings.
@@ -122,25 +102,6 @@ class Session {
       //print("after adding $bb to activated big bads its ${activatedBigBads.length} long");
       bb.activateTasks();
     }
-  }
-
-  void makeBigBadIneligible(BigBad bigBad) {
-    bigBad.active = false;
-    activatedBigBads.remove(bigBad);
-    //apparently this doesn't work because reality is inscrutable, do a loop with names instead
-    npcHandler.bigBads.remove(bigBad);
-    deactivateNPC(bigBad);
-    print("DebugYard: session removed $bigBad from ${npcHandler.bigBads}");
-    for(BigBad bb in bigBadsReadOnly) {
-      if(bigBad.name == bb.name) {
-        npcHandler.bigBads.remove(bb);
-        print("I think $bb is the same thing as ${bigBad}");
-      }else {
-        print("I think $bb is the NOT same thing as ${bigBad}");
-      }
-    }
-    print("DebugYard: session removed $bigBad from ${npcHandler.bigBads}");
-
   }
 
   void grabActivatedBigBads() {
@@ -264,13 +225,9 @@ class Session {
     }
   }
 
-  FraymotifCreator fraymotifCreator = new FraymotifCreator(); //as long as FraymotifCreator has no state data, this is fine.
-
   num sessionHealth = 500 * Stats.POWER.coefficient; //grimDark players work to lower it. at 0, it crashes.  maybe have it do other things at other levels, or effect other things.
-  List<Player> replayers = <Player>[]; //used for fan oc easter eggs.
   AfterLife afterLife = new AfterLife();
 
-  bool janusReward = false;
   //if i have less than expected grist, then no frog, bucko
   int expectedGristContributionPerPlayer; //set in mutator
   int minimumGristPerPlayer; //less than this, and no frog is possible.
@@ -323,13 +280,6 @@ class Session {
     //reinit first, to match scratches and yards and shit, make players with fresh seed essentially
     reinit("new session");
     getPlayersReady();
-  }
-
-  Moon stringToMoon(String string) {
-    ;
-    if(string == prospit.name) return prospit;
-    if(string == derse.name) return derse;
-    return null;
   }
 
   SkaiaQuestChainFeature randomBattlefieldQuestChain() {
@@ -599,37 +549,6 @@ class Session {
     return ret;
   }
 
-  bool isPlayerAvailable(Player p) {
-    return p.available;
-  }
-
-  void addAvailablePlayer(Player p) {
-    p.available = true;
-  }
-
-  //near as i can figure logger.debug just straight up never works.
-  void removeAvailablePlayer(GameEntity p1) {
-    if (p1 == null || !(p1 is Player)) {
-      //logger.info("i think player is null or not a player");
-      if(p1 != null) p1.available = false; //for npcs
-      return;
-    }
-    Player p = p1;
-    //if you're dead, you're removed even if time/breath NOT doing this in old system probably caused some livly corpse bugs
-    if(p.dead || !(p.aspect == Aspects.TIME || p.aspect == Aspects.BREATH || mutator.breathField)) {
-      //logger.info("removing player $p");
-      p.available = false;
-    }else {
-      if(!mutator.breathField) {
-        //small chance to remove anyways so time players are less op.
-        if(rand.nextDouble() > 0.4) {
-          p.available = false;
-        }
-      }
-      //logger.info("not removing player $p, i think they are a breath or time player or the breath field is active ");
-    }
-
-  }
 
   void resetAvailableClasspects() {
     //make sure canon state is SET before we actually use it dunkass
@@ -651,23 +570,6 @@ class Session {
     this.required_aspects = <Aspect>[Aspects.TIME, Aspects.SPACE];
   }
 
-  //what aspects do the plaeyrs have
-  List<Aspect> aspectsIncluded() {
-    List<Aspect> ret = new List<Aspect>();
-    for(Player p in players) {
-      ret.add(p.aspect);
-    }
-    return ret;
-  }
-
-  //what aspects are missing from this session?
-  List<Aspect> aspectsLeftOut() {
-    List<Aspect> ret = new List.from(Aspects.all);
-    for(Player p in players) {
-      ret.remove(p.aspect);
-    }
-    return ret;
-  }
 
   Future<Null> callNextIntro(int player_index) async{
 
@@ -786,47 +688,6 @@ class Session {
     simulationComplete("Combo Session Returned");
   }
 
-  //TODO oh god why is this still here and not somwhere sane like in a SimController.
-  Future<Null> scratch() async {
-    logger.info("scratching");
-    numPlayersPreScratch = this.players.length;
-    var ectoSave = this.stats.ectoBiologyStarted;
-
-    reinit("scratch");
-    print("after reinit seed is: ${rand.spawn().nextInt()}");
-
-    this.stats.scratched = true;
-    this.stats.scratchAvailable = false;
-    this.stats.doomedTimeline = false;
-    print("before ragged players seed is: ${rand.spawn().nextInt()}");
-
-    this.didReckoning = false;
-    raggedPlayers = findPlayersFromSessionWithId(this.players, this.session_id); //but only native
-    logger.info("the ragged players are $raggedPlayers");
-    //use seeds the same was as original session and also make DAMN sure the players/guardians are fresh.
-    //hello to TheLertTheWorldNeeds, I loved your amazing bug report!  I will obviously respond to you in kind, but wanted
-    //to leave a permanent little 'thank you' here as well. (and on the glitch page) I laughed, I cried, I realzied that fixing guardians
-    //for easter egg sessions would be way easier than initially feared. Thanks a bajillion.
-    //it's not as simple as remebering to do easter eggs here, but that's a good start. i also gotta
-    //rework the easter egg guardian code. last time it worked guardians were an array a session had, but now they're owned by individual players.
-    //plus, at the time i first re-enabled the easter egg, session 612 totally didn't have a scratch, so i could exactly test.
-    print("before make players seed is: ${rand.spawn().nextInt()}");
-
-    this.makePlayers();
-    this.randomizeEntryOrder();
-    this.makeGuardians(); //after entry order established
-    print("after i made the players they are $players");
-    this.createScenesForPlayers();
-
-    this.stats.ectoBiologyStarted = ectoSave; //if i didn't do ecto in first version, do in second
-    //technically teh scratched moon is diff than the one they knew about as a guardian
-    for(Player p in this.players) {
-      p.syncToSessionMoon();
-    }
-    await checkEasterEgg(this); //it won't call start directly, so i'll allow it to stay here
-    SimController.instance.scratchEasterEggCallBack(this);
-  }
-
 
 
   Future<Null> reckoning() async {
@@ -907,8 +768,7 @@ class Session {
     return ret;
   }
 
-  void resetNPCAvailability()
-  {
+  void resetNPCAvailability() {
     for(GameEntity g in activatedNPCS) {
 
       if(!g.dead) {
@@ -993,10 +853,6 @@ class Session {
   }
 
 
-  void destroyBlackRing() {
-    derse.destroyRing();
-  }
-
   Player findBestSpace() {
     List<Player> spaces = findAllAspectPlayers(this.players, Aspects.SPACE);
     if (spaces.isEmpty) return null;
@@ -1031,19 +887,6 @@ class Session {
     return ret; //lowest space player.
   }
 
-  ImportantEvent addImportantEvent(ImportantEvent important_event) {
-    ImportantEvent alternate = this.yellowYardController.doesEventNeedToBeUndone(important_event);
-    //	//print("alternate i got from yellowYardController is: " + alternate);
-    if (alternate != null) {
-      //	//;
-      if (doEventsMatch(important_event, this.afterLife.timeLineSplitsWhen, false)) this.afterLife.allowTransTimeLineInteraction();
-      return alternate; //scene will use the alternate to go a different way. important event no longer happens.
-    } else {
-      ////;
-      this.importantEvents.add(important_event);
-      return null;
-    }
-  }
 
   ///frog status is part actual tadpole, part grist
   bool sickFrogCheck(Player spacePlayer) {
@@ -1129,55 +972,6 @@ class Session {
     return (frog || grist || rings || hasNoPlanet);
   }
 
-  String frogStatus() {
-    String ret = "";
-    Player spacePlayer = this.findBestSpace();
-    Player corruptedSpacePlayer = this.findMostCorruptedSpace();
-    //var spacePlayer = findAspectPlayer(this.players, "Space");
-    if (purpleFrogCheck(corruptedSpacePlayer)) return "Purple Frog"; //is this...a REFRANCE???
-    if (noFrogCheck(spacePlayer)){
-      ret = "No Frog";
-    } else if (fullFrogCheck(spacePlayer)) {
-      ret = "Full Frog";
-    } else if(sickFrogCheck(spacePlayer)) {
-      ret = "Sick Frog";
-    }else {
-      logger.info("AB:  What the HELL kind of frog is this in session ${session_id}");
-      ret = "??? Frog";
-    }
-    if(spacePlayer !=null) {
-      //logger.info("AB:  Returning ending of $ret with grist of ${getAverageGrist(players)} and frog level of ${spacePlayer.landLevel}");
-    }else {
-      logger.info("AB: Uh. JR. There's no space player. What the fuck did you break this time???");
-    }
-    return ret;
-  }
-
-  void addEventToUndoAndReset(ImportantEvent e) {
-    //when I reset, need things to go the same. that includes having no ghosts interact with the session. figure out how to renable them once my event happens again.
-    this.afterLife.complyWithLifeTimeShenanigans(e);
-    ////;
-    if (this.stats.scratched) {
-      this.addEventToUndoAndResetScratch(e); //works different
-      return;
-    }
-    if (e != null) { //will be null if undoing an undo
-      this.yellowYardController.eventsToUndo.add(e);
-    }
-    //reinit the seed and restart the session
-    //var savedPlayers = this.players;
-    this.reinit("yellow yard");
-
-    //players need to be reinit as well.
-    this.makePlayers();
-    this.randomizeEntryOrder();
-    this.makeGuardians(); //after entry order established
-    //don't need to call easter egg directly
-    //print(npcHandler.debugNPCs());
-    print("oh hai there, i'm about to do the easter egg callback");
-    restartSession();
-    return;
-  }
 /*
     UserTag createDebugTag(String named) {
         var customTag = new UserTag(named);
@@ -1191,50 +985,6 @@ class Session {
     }
   }
 
-  void restartSession() {
-    //now that i've done that, (for seed reasons) fucking ignore it and stick the actual players in
-    //after alll, i could be from a combo session.
-    //but don't just hardcore replace. need to...fuck. okay, cloning aliens now.
-    this.aliensClonedOnArrival = aliensClonedOnArrival;
-    ////print("adding this many clone aliens: " + this.aliensClonedOnArrival.length);
-    ////print(getPlayersTitles(this.aliensClonedOnArrival));
-    List<Player> aliens = <Player>[]; //if don't make copy of aliensClonedOnArrival, goes into an infinite loop as it loops on it and adds to it inside of addAliens;
-    for (num i = 0; i < aliensClonedOnArrival.length; i++) {
-      aliens.add(aliensClonedOnArrival[i]);
-    }
-    aliensClonedOnArrival = <Player>[]; //jettison old clones.
-    if(!(this is DeadSession)) addAliensToSession(aliens);
-
-    print("restarting session but it apparently doesn't actually do anything???");
-    setHtml(SimController.instance.storyElement, '<canvas id="loading" width="1000" height="354"> ');
-    window.scrollTo(0, 0);
-    startSession();
-  }
-
-  void easterCallBackScratch(Session that) {
-    if (this.stats.ectoBiologyStarted) { //players are reset except for haivng an ectobiological source
-      setEctobiologicalSource(this.players, this.session_id);
-    }
-    restartSessionScratch(); //in controller, will initialize players
-
-  }
-
-
-  void addEventToUndoAndResetScratch(ImportantEvent e) {
-    //print('yellow yard from scratched session');
-    if (e != null) { //will be null if undoing an undo
-      this.yellowYardController.eventsToUndo.add(e);
-    }
-    bool ectoSave = this.stats.ectoBiologyStarted;
-    reinit("yellow yard scratch");
-    //use seeds the same was as original session and also make DAMN sure the players/guardians are fresh.
-    this.makePlayers();
-    this.randomizeEntryOrder();
-    this.makeGuardians(); //after entry order established
-
-    this.stats.ectoBiologyStarted = ectoSave;
-    this.stats.scratched = true;
-  }
 
   void checkSGRUB() {
     bool sgrub = true;
@@ -1363,104 +1113,6 @@ class Session {
     //previousTag.makeCurrent();
   }
 
-
-
-  Session initializeCombinedSession() {
-    if(this.stats.rocksFell) return null; //can't combo is skaia doesn't exist.
-    this.aliensClonedOnArrival = <Player>[]; //PROBABLY want to do this.
-    List<Player> living = findLiving(this.players);
-    //nobody is the leader anymore.
-    Session newSession = new Session(this.rand.nextInt(),true); //Math.seed);  //this is a real session that could have gone on without these new players.
-    newSession
-      ..currentSceneNum = this.currentSceneNum
-      ..afterLife = this.afterLife //afterlife carries over.
-      ..stats.dreamBubbleAfterlife = this.stats.dreamBubbleAfterlife //this, too
-      ..reinit("combined session")
-      ..makePlayers()
-      ..randomizeEntryOrder()
-      ..makeGuardians();
-    if (living.length + newSession.players.length > 12) {
-      logger.info("New session ${newSession.session_id } cannot support living players. Already has ${newSession.players.length} and would need to add: ${living.length}");
-      if(! mutator.spaceField) return null; //their child session is not able to support them  (space says 'fuck this noise we doing it')
-    }
-    ;
-    ////print(getPlayersTitles(living));
-    newSession.addAliensToSession(this.players); //used to only bring players, but that broke shipping. shipping is clearly paramount to Skaia, because everything fucking crashes if shipping is compromised.
-    newSession.addActiveNPCSForCombo(activatedNPCS);
-    this.stats.hadCombinedSession = true;
-    this.childSession = newSession;
-    newSession.stats.isComboedInto = true;
-    //reverse polarity
-    //newSession.parentSession = this;
-    this.childSession = newSession;
-    newSession.createScenesForPlayers();
-    logger.info("New session ${newSession.session_id } has been born. Has ${newSession.players.length} and will  add: ${newSession.aliensClonedOnArrival.length}");
-    return newSession;
-  }
-
-  Player getVersionOfPlayerFromThisSession(Player player) {
-    //can double up on classes or aspects if it's a combo session. god. why are their combo sessions?
-    for (num i = 0; i < this.players.length; i++) {
-      Player p = this.players[i];
-      if (p.class_name == player.class_name && p.aspect == player.aspect) {
-        return p; //yeah, technically there COULD be two players with the same claspect in a combo session, but i have ceased caring.
-      }
-    }
-    //;
-    return null;
-  }
-
-  //slurps up players from this data string, inits etc
-  void processDataString(String dataString) {
-    players = Player.processDataString(this, dataString);
-    playerInitialization();
-  }
-
-  void reinit(String source) {
-    //UserTag previousTag = createDebugTag("reiniting");
-    stats = new SessionStats();
-    String parent = "";
-    if(childSession != null) parent = "${childSession.session_id}";
-    logger.info("DEBUG SESSION CUSTOMIZER: reiniting because $source after $numTicks ticks, combined: ${stats.hadCombinedSession}, ${parent}");
-    GameEntity.resetNextIdTo(stats.initialGameEntityId);
-    plzStartReckoning = false;
-    //was past jr REALLY dumb enough to forget to reset these?
-    numTicks = 0;
-    currentSceneNum = 0;
-    npcHandler = new NPCHandler(this);
-    npcHandler.setupNpcs();
-    _activatedNPCS.clear();
-    resetAvailableClasspects();
-    didReckoning = false;
-    numberPlayersOnBattlefield = 0;
-    //it already completed so, start over.
-    if(completer != null) simulationComplete("restarting");
-    completer = new Completer<Session>();
-    //Math.seed = this.session_id; //if session is reset,
-    this.rand.setSeed(this.session_id);
-    print("reinit with seed: ${rand.spawn().nextInt()}");
-    this.timeTillReckoning = this.rand.nextIntRange(minTimeTillReckoning, maxTimeTillReckoning); //rand.nextIntRange(10,30);
-    this.sessionType = this.rand.nextDouble(); //rand.nextDouble();
-    createScenesForPlayers();
-    //this.available_scenes = curSessionGlobalVar.scenes.slice(0);
-    //curSessionGlobalVar.doomedTimeline = false;
-    this.stats.doomedTimeline = false;
-    print("before reinit moons with seed: ${rand.spawn().nextInt()}");
-    this.setupMoons("reiniting session");
-    print("after reinit moons with seed: ${rand.spawn().nextInt()}");
-
-    //fix refereances
-
-    this.reckoningStarted = false;
-    this.importantEvents = <ImportantEvent>[];
-    this.stats.rocksFell = false; //sessions where rocks fell screw over their scratched and yarded iterations, dunkass
-    this.doomedTimelineReasons = <String>[];
-    this.stats.ectoBiologyStarted = false;
-    //print("at end of reinit with seed: ${rand.spawn().nextInt()}");
-    //previousTag.makeCurrent();
-
-  }
-
   void activateAllCarapaces() {
     for(GameEntity g in derse.associatedEntities) {
       g.active = true;
@@ -1470,24 +1122,6 @@ class Session {
       g.active = true;
     }
   }
-
-  void deactivateAllCarapaces() {
-    for(GameEntity g in derse.associatedEntities) {
-      g.active = false;
-    }
-
-    for(GameEntity g in prospit.associatedEntities) {
-      g.active = false;
-    }
-  }
-
-  void activateAllBigBads() {
-    for(BigBad bb in bigBadsReadOnly) {
-      activateBigBad(bb);
-    }
-  }
-
-
 
   void makePlayers() {
     logger.info("making players from seed ${rand.spawn().nextInt()}");
@@ -1616,16 +1250,6 @@ class Session {
     if(this.players.isNotEmpty)this.players[0].leader = true;
   }
 
-  void switchPlayersForScratch() {
-    //var tmp = curSessionGlobalVar.players;
-    //curSessionGlobalVar.players = curSessionGlobalVar.guardians;
-    //curSessionGlobalVar.guardians = tmp;
-    List<Player> nativePlayers = findPlayersFromSessionWithId(this.players, this.session_id);
-    ////print(nativePlayers);
-    List<Player> guardians = getGuardiansForPlayers(nativePlayers);
-    this.players = guardians;
-  }
-
   String getSessionType() {
     if(sessionType < 0 ) sessionType = rand.nextDouble();
     // logger.info("session type is $sessionType");
@@ -1635,33 +1259,6 @@ class Session {
       return "Troll";
     }
     return "Mixed";
-  }
-
-
-  Player getLeader([List<Player> specificPlayers]) {
-    bool allPlayers = false;
-    if (specificPlayers == null) {
-      specificPlayers = players;
-      allPlayers = true;
-    }
-    if(mutator.lightField) return mutator.inSpotLight;
-    for (int i = 0; i < specificPlayers.length; i++) {
-      Player g = specificPlayers[i]; //leader MUST be player
-      if (g is Player) {
-        Player p = specificPlayers[i];
-        if (p.leader) {
-          return p;
-        }
-      }
-    }
-    //only do this if you were passed all players
-    if (!specificPlayers.isEmpty) {
-      logger.info("found a leaderless session");
-      specificPlayers[0].leader = true; //SOMEONE be the leader god damn it
-      return specificPlayers[0];
-    }
-    return null;
-
   }
 
 
@@ -1723,64 +1320,4 @@ class Session {
     return ret;
   }
 
-  Element newSceneOld(String callingScene, [overRideVoid = false]) {
-    this.currentSceneNum ++;
-    String div;
-    String lightBS = "";
-    if(mutator.lightField) lightBS = "Session ID: $session_id Scene ID: ${this.currentSceneNum} Name: ${callingScene}  Session Health: ${sessionHealth}  TimeTillReckoning: ${timeTillReckoning} Last Rand: ${rand.spawn().nextInt()}";
-    if (this.sbahj) {
-      div = "<div class = 'scene' id='scene${this.currentSceneNum}' style='";
-      div = "${div}background-color: #00ff00;";
-      div = "${div}font-family: Comic Sans MS, cursive, sans-serif;";
-      //querySelector("#scene"+this.currentSceneNum).css("background-color", "#00ff00");
-      int reallyRand = getRandomIntNoSeed(1, 10);
-      for (int i = 0; i < reallyRand; i++) {
-        int indexOfTerribleCSS = getRandomIntNoSeed(0, terribleCSSOptions.length - 1);
-        List<String> tin = terribleCSSOptions[indexOfTerribleCSS];
-        if (tin[1] == "????") {
-          tin[1] = "${getRandomIntNoSeed(1, 100)}%";
-        }
-        div = "$div${tin[0]}${tin[1]};";
-      }
-      div = "$div' >";
-      if (ouija == true) div = "$div<img class = 'pen15' src = 'images/pen15_bg1.png'>"; //can't forget the dicks;
-      div = "$div $lightBS</div>";
-    } else if (ouija == true) {
-      int trueRandom = getRandomIntNoSeed(1, 4);
-      div = "<div class = 'scene' id='scene${this.currentSceneNum}'>";
-      div = "$div<img class = 'pen15' src = 'images/pen15_bg$trueRandom.png'>";
-      div = "$div $lightBS</div>";
-    } else {
-      div = "<div class = 'scene' id='scene${this.currentSceneNum}'>$lightBS</div>";
-    }
-
-    //instead of appending you're replacing. Void4 is SERIOUS about you not getting to see.
-    if(mutator.voidField && !overRideVoid) {
-      Element voidDiv = querySelector("#voidStory");
-      if(voidDiv == null) {
-        doNotRender = true;
-        numScenes = 0; //since we're lying to AB anyway, use this to keep track of how many scenes we skipped due to void
-        doNotFetchXml = true;
-        appendHtml(SimController.instance.storyElement, "<div id = 'voidStory'></div>");
-        voidDiv = querySelector("#voidStory");
-      }
-      voidDiv.setInnerHtml("${"<br>"*numScenes}$div");//one br for each skipped scene
-      return querySelector("#scene${this.currentSceneNum}");
-    }else if(overRideVoid) {
-      logger.info("am i setting do not render to false?");
-      //doNotRender = false; //this fucks AB up. don't do it. but at least they'll see the text.
-    }
-
-    appendHtml(SimController.instance.storyElement, div);
-    return querySelector("#scene${this.currentSceneNum}");
-  }
-
-
 }
-
-
-
-
-
-
-
