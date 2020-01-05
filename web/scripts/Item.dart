@@ -6,11 +6,14 @@ import 'dependencies/lz-string.dart';
 import "Item.dart";
 import "MagicalItem.dart";
 import "dependencies/random_tables.dart";
+import 'dependencies/fraymotif.dart'
+;
 import "Trait.dart";
 import "dependencies/random.dart";
 import 'dart:collection';
 import "dependencies/NPCS.dart";
 import "dependencies/SBURBSim.dart";
+import 'dependencies/JSONObject.dart';
 import 'dart:html';
 
 //I expect aspects and interests to have lists of items inside of them.
@@ -337,7 +340,7 @@ class Sylladex extends Object with IterableMixin<Item> {
     }
     return false;
   }
-
+  //todo adress this funky bit
   void add(Item item) {
     Item i = item;
     //if i'm already owned, i'm already physical and unique

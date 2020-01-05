@@ -1,5 +1,11 @@
 import "Item.dart";
+import 'Trait.dart';
+import 'dependencies/stat.dart';
+import 'dependencies/statholder.dart';
 import "dependencies/SBURBSim.dart";
+import 'dependencies/GameEntity.dart';
+import 'dependencies/fraymotif.dart';
+import 'dependencies/FraymotifEffect.dart';
 
 //rings and shit.
 class MagicalItem extends Item with StatOwner {
