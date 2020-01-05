@@ -23,32 +23,6 @@ abstract class Stats {
   static Stat ALCHEMY;
   static Stat SBURB_LORE;//todo remove
 
-  static void init() {
-    if (_initialised) {return;}
-    _initialised = true;
-
-    EXPERIENCE = new Stat("Experience", "learned", "naïve", pickable: false)..minBase=0.0; //wastes can get 0
-    GRIST = new Stat("Grist Level", "rich", "poor", pickable: false, summarise:false);
-
-    POWER = new XPScaledStat("Power", "strong", "weak", 0.03, coefficient: 10.0, associatedGrowth: 0.5)..minBase=2.5..minDerived=1.0;
-    HEALTH = new XPScaledStat("Health", "sturdy", "fragile", 0.04, coefficient: 10.0)..minBase=2.5;
-    CURRENT_HEALTH = new Stat("Current Health", "healthy", "infirm", pickable: false, transient:true);
-    MOBILITY = new Stat("Mobility", "fast", "slow");
-
-    //RELATIONSHIPS = new RelationshipStat("Relationships", "friendly", "aggressive", pickable: false); // should be a special one to deal with players
-    SANITY = new Stat("Sanity", "calm", "crazy");
-    FREE_WILL = new Stat("Free Will", "willful", "gullible");
-
-    MAX_LUCK = new Stat("Maximum Luck", "lucky", "unlucky");
-    MIN_LUCK = new Stat("Minimum Luck", "lucky", "unlucky");
-
-    ALCHEMY = new Stat("Alchemy", "creative", "boring");
-    SBURB_LORE = new Stat("SBURB Lore", "woke", "clueless", pickable: false);
-
-    byName = new Map<String,Stat>.unmodifiable(new Map<String,Stat>.fromIterable(all, key: (dynamic s) => s.name, value: (dynamic s) => s));
-  }
-  static bool _initialised = false;
-
   static List<Stat> _list = <Stat>[];
 
   static Iterable<Stat> get all => _list;
@@ -83,20 +57,6 @@ class Stat {
 
   @override
   String toString() => this.name;
-
-  T max<T extends StatObject>(Iterable<T> from) {
-    double n = double.negativeInfinity;
-    T most = null;
-    double s;
-    for (T h in from) {
-      s = h.getStatHolder()[this];
-      if (s > n) {
-        most = h;
-        n = s;
-      }
-    }
-    return most;
-  }
 
   T min<T extends StatObject>(Iterable<T> from) {
     double n = double.infinity;
@@ -133,27 +93,5 @@ class Stat {
       unsorted = unsorted.reversed.toList();
     }
     return unsorted..sort(this.sorter);
-  }
-
-  String emphaticDescriptor(StatObject o) {
-    if (o.getStatHolder()[this] > 0) {
-      return this.emphaticPositive;
-    }
-    return this.emphaticNegative;
-  }
-
-  double get rangeMinimum => Math.max(this.minBase * this.coefficient, this.minDerived);
-  double get rangeMaximum => Math.min(this.maxBase * this.coefficient, this.maxDerived);
-}
-
-class XPScaledStat extends Stat {
-  final double expCoefficient;
-
-  XPScaledStat(String name, String emphaticPositive, String emphaticNegative, double this.expCoefficient, {double coefficient = 1.0, double associatedGrowth = 1.0, bool pickable = true, bool summarise = true, bool transient = false}):super(name, emphaticPositive, emphaticNegative, coefficient:coefficient, associatedGrowth:associatedGrowth, pickable:pickable, summarise:summarise, transient:transient);
-
-  @override
-  double derived(StatHolder stats, double base) {
-    double xp = stats[Stats.EXPERIENCE];
-    return super.derived(stats, base) * (1.0 + expCoefficient * xp);
   }
 }
