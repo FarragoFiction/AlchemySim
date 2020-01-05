@@ -1,10 +1,6 @@
-import 'FraymotifEffect.dart';
-import "SBURBSim.dart";
 import 'dart:convert';
 import "dart:html";
-import 'lz-string.dart';
-
-import 'JSONObject.dart';
+import 'SBURBSim.dart';
 
 
 
@@ -16,12 +12,6 @@ at start AND end of battle (can't be too careful), wipe applied fraymotifs
 */
 class Fraymotif {
 
-  static String OWNER = "OWNER";
-  static String CASTERS = "CASTERS";
-  static String ALLIES = "ALLIES";
-  static String ENEMY = "ENEMY";
-  static String ENEMIES = "ENEMIES";
-  static String FRAYMOTIF  = "FRAYMOTIF";
   String get labelPattern => ":___ ";
 
 

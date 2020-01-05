@@ -164,9 +164,6 @@ class Zalgo {
   }
 }
 
-
-
-
 String turnArrayIntoHumanSentence(List<dynamic> retArray) {
   return [retArray.sublist(0, retArray.length - 1).join(', '), retArray.last].join(retArray.length < 2 ? '' : ' and ');
 }

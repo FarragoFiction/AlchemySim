@@ -4,7 +4,7 @@ import "../Lands/FeatureTypes/QuestChainFeature.dart";
 import "../Lands/Quest.dart";
 import "../Lands/Reward.dart";
 import "dart:async";
-import "../SBURBSim.dart";
+import "SBURBSim.dart";
 enum CanonLevel {
   CANON_ONLY,
   FANON_ONLY,
@@ -1775,23 +1775,6 @@ class Session {
     return querySelector("#scene${this.currentSceneNum}");
   }
 
-  List<Session> getLineage() {
-    //;
-    if (this.childSession != null) {
-      List<Session> tmp = this.childSession.getLineage();
-      tmp.add(this);
-      return tmp;
-    }
-    return <Session>[this];
-  }
-
-  SessionSummary generateSummary() {
-    if(tableGuardianMode) {
-      //empty
-      return new SessionSummary(-13);
-    }
-    return SessionSummary.makeSummaryForSession(this);
-  }
 
 }
 

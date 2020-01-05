@@ -3,11 +3,7 @@ import 'dart:developer';
 import "dart:html";
 import "dart:math" as Math;
 import "SBURBSim.dart";
-import 'stat.dart';
-import 'statholder.dart';
-import 'fraymotif.dart';
-import 'lz-string.dart';
-import '../Item.dart';
+
 
 
 enum ProphecyState {

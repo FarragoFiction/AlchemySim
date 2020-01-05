@@ -90,28 +90,14 @@ class Colour {
   void set blueDouble(double val) { this.blue  = (val*0xFF).floor(); }
   void set alphaDouble(double val){ this.alpha = (val*0xFF).floor(); }
 
-  void setRGB(int red, int green, int blue) {
-    this.red = red;
-    this.green = green;
-    this.blue = blue;
-  }
 
   // HSV
+  //todo cactus notes: damn this is gonna look weird if its only the value from HSV that gets used
 
-  double get hue        { this._checkHSV(); return _hue; }
-  double get saturation { this._checkHSV(); return _saturation; }
   double get value      { this._checkHSV(); return _value; }
 
-  void set hue(double val)        { this._checkHSV(); _hue        = val; this._updateRGBfromHSV(); }
-  void set saturation(double val) { this._checkHSV(); _saturation = val; this._updateRGBfromHSV(); }
   void set value(double val)      { this._checkHSV(); _value      = val; this._updateRGBfromHSV(); }
 
-  void setHSV(double h, double s, double v) {
-    this._hue = h;
-    this._saturation = s;
-    this._value = v;
-    this._updateRGBfromHSV();
-  }
 
   // LAB
 
@@ -123,12 +109,6 @@ class Colour {
   void set lab_a(double val)         { this._checkLAB(); _lab_a         = val; this._updateRGBfromLAB(); }
   void set lab_b(double val)         { this._checkLAB(); _lab_b         = val; this._updateRGBfromLAB(); }
 
-  void setLAB(double l, double a, double b) {
-    this._lab_lightness = l;
-    this._lab_a = a;
-    this._lab_b = b;
-    this._updateRGBfromLAB();
-  }
 
   double _lab_scale_l(double val, bool reverse) {
     return reverse ? val*100 : val*0.01;
@@ -170,34 +150,8 @@ class Colour {
     }
   }
 
-  double get lab_lightness_scaled => _lab_scale_l(this.lab_lightness, false);
-  double get lab_a_scaled         => _lab_scale_a(this.lab_a, false);
-  double get lab_b_scaled         => _lab_scale_b(this.lab_b, false);
-
-  void set lab_lightness_scaled(double val) { this.lab_lightness = _lab_scale_l(val, true); }
-  void set lab_a_scaled(double val)         { this.lab_a = _lab_scale_a(val, true); }
-  void set lab_b_scaled(double val)         { this.lab_b = _lab_scale_b(val, true); }
-
-  void setLABScaled(double l, double a, double b) {
-    this._lab_lightness = _lab_scale_l(l, true);
-    this._lab_a = _lab_scale_a(a, true);
-    this._lab_b = _lab_scale_b(b, true);
-    this._updateRGBfromLAB();
-  }
 
   // Methods ###################################################################################
-
-  void setFrom(Colour colour) {
-    this._red = colour._red;
-    this._green = colour._green;
-    this._blue = colour._blue;
-    this._dirty();
-  }
-
-  @override
-  String toString() {
-    return "rgb($red, $green, $blue, $alpha)";
-  }
 
   int toHex([bool useAlpha = false]) {
     if (useAlpha) {
@@ -220,37 +174,6 @@ class Colour {
     return "#${this.toHexString(useAlpha)}";
   }
 
-  bool matchFromImageData(ImageData data, int offset) {
-    return data.data[offset] == this.red && data.data[offset+1] == this.green && data.data[offset+2] == this.blue && data.data[offset+3] == this.alpha;
-  }
-
-  Colour mixRGB(Colour other, double fraction) {
-    fraction = fraction.clamp(0.0, 1.0);
-    return (this * (1-fraction)) + (other * fraction);
-  }
-
-  Colour mixGamma(Colour other, double fraction, [double gamma = DEFAULT_GAMMA]) {
-    fraction = fraction.clamp(0.0, 1.0);
-    double inverse = 1.0 / gamma;
-
-    double r = pow( _lerp( pow(this.redDouble, gamma), pow(other.redDouble, gamma), fraction), inverse);
-    double g = pow( _lerp( pow(this.greenDouble, gamma), pow(other.greenDouble, gamma), fraction), inverse);
-    double b = pow( _lerp( pow(this.blueDouble, gamma), pow(other.blueDouble, gamma), fraction), inverse);
-    double a = _lerp(this.alphaDouble, other.alphaDouble, fraction);
-
-    return new Colour.double(r,g,b,a);
-  }
-
-  Colour mix(Colour other, double fraction, [bool useGamma = false, double gamma = DEFAULT_GAMMA]) {
-    if (useGamma) {
-      return this.mixGamma(other, fraction, gamma);
-    }
-    return this.mixRGB(other, fraction);
-  }
-
-  static double _lerp(double first, double second, double fraction) {
-    return (first * (1-fraction) + second * fraction);
-  }
 
   void _dirty() {
     this._hsv_dirty = true;
@@ -318,92 +241,6 @@ class Colour {
     this.blueDouble = rgb[2];
 
     rgb = null;
-  }
-
-  // Operators ###################################################################################
-
-  @override
-  bool operator ==(dynamic other) {
-    if (other is Colour) {
-      return this._red == other._red && this._green == other._green && this._blue == other._blue && this._alpha == other._alpha;
-    }
-    return false;
-  }
-
-  @override
-  int get hashCode => this.toHex(true);
-
-  Colour operator +(dynamic other) {
-    if (other is Colour) {
-      return new Colour(this.red + other.red, this.green + other.green, this.blue + other.blue, this.alpha + other.alpha);
-    } else if (other is double) {
-      return new Colour.double(this.redDouble + other, this.greenDouble + other, this.blueDouble + other, this.alphaDouble);
-    } else if (other is int) {
-      return new Colour(this.red + other, this.green + other, this.blue + other, this.alpha);
-    }
-    throw "Cannot add [${other.runtimeType} $other] to a Colour. Only Colour, double and int are valid.";
-  }
-
-  Colour operator -(dynamic other) {
-    if (other is Colour) {
-      return new Colour(this.red - other.red, this.green - other.green, this.blue - other.blue, this.alpha - other.alpha);
-    } else if (other is double) {
-      return new Colour.double(this.redDouble - other, this.greenDouble - other, this.blueDouble - other, this.alphaDouble);
-    } else if (other is int) {
-      return new Colour(this.red - other, this.green - other, this.blue - other, this.alpha);
-    }
-    throw "Cannot subtract [${other.runtimeType} $other] from a Colour. Only Colour, double and int are valid.";
-  }
-
-  Colour operator /(dynamic other) {
-    if (other is Colour) {
-      return new Colour.double(this.redDouble / other.redDouble, this.greenDouble / other.greenDouble, this.blueDouble / other.blueDouble, this.alphaDouble / other.alphaDouble);
-    } else if (other is num) {
-      return new Colour.double(this.redDouble / other, this.greenDouble / other, this.blueDouble / other, this.alphaDouble);
-    }
-    throw "Cannot divide a Colour by [${other.runtimeType} $other]. Only Colour, double and int are valid.";
-  }
-
-  Colour operator *(dynamic other) {
-    if (other is Colour) {
-      return new Colour.double(this.redDouble * other.redDouble, this.greenDouble * other.greenDouble, this.blueDouble * other.blueDouble, this.alphaDouble * other.alphaDouble);
-    } else if (other is num) {
-      return new Colour.double(this.redDouble * other, this.greenDouble * other, this.blueDouble * other, this.alphaDouble);
-    }
-    throw "Cannot multiply a Colour by [${other.runtimeType} $other]. Only Colour, double and int are valid.";
-  }
-
-  int operator [](int index) {
-    if (index == 0) return red;
-    if (index == 1) return green;
-    if (index == 2) return blue;
-    if (index == 3) return alpha;
-    throw "Colour index out of range: $index";
-  }
-
-  void operator []=(int index, num value) {
-    if (index < 0 || index > 3) { throw "Colour index out of range: $index"; }
-    if (value is int) {
-      if (index == 0) {
-        this.red = value;
-      } else if (index == 1) {
-        this.green = value;
-      } else if (index == 2) {
-        this.blue = value;
-      } else {
-        this.alpha = value;
-      }
-    } else {
-      if (index == 0) {
-        this.redDouble = value;
-      } else if (index == 1) {
-        this.greenDouble = value;
-      } else if (index == 2) {
-        this.blueDouble = value;
-      } else {
-        this.alphaDouble = value;
-      }
-    }
   }
 
   // Static conversions ###################################################################################

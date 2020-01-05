@@ -1,16 +1,11 @@
-import 'PlayerSpriteHandler.dart';
 import 'dart:async';
 import 'dart:convert';
 import "dart:html";
 import "dart:math" as Math;
 import "dart:typed_data";
-import "SBURBSim.dart";
+import 'SBURBSim.dart';
 import "bytebuilder.dart";
-import 'session.dart';
-import 'GameEntity.dart';
-import "navbar.dart";
-import 'lz-string.dart';
-
+import 'PlayerSpriteHandler.dart';
 
 
 class Player extends GameEntity{

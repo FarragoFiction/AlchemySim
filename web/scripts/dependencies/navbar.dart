@@ -1,7 +1,6 @@
 import "dart:async";
 import 'dart:html';
 import "Controllers/Misc/SimController.dart";
-import "random.dart";
 import "SBURBSim.dart";
 import 'includes/path_utils.dart';
 

@@ -1,6 +1,5 @@
 import "dart:collection";
 import "SBURBSim.dart";
-import 'stat.dart';
 
 /// Interface for objects with stats when you don't care about anything else.
 /// Mostly for when you want to support [StatHolder] AND [StatOwner] in a method.
