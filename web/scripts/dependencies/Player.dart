@@ -73,16 +73,6 @@ class Player extends GameEntity{
   }
 
 
-  @override
-  List<String> get bureaucraticBullshit {
-    return class_name.bureaucraticBullshit;
-  }
-
-  @override
-  void processCardFor() {
-    class_name.processCard();
-    aspect.processCard();
-  }
 
 
   @override
@@ -219,11 +209,6 @@ class Player extends GameEntity{
     }
 
     return ret;
-  }
-
-
-  String htmlTitleBasic() {
-    return "${this.aspect.fontTag()}${this.titleBasic()}</font> (<font color = '${getChatFontColor()}'>${chatHandle}</font>)";
   }
 
   String htmlTitleBasicNoTip() {
@@ -458,108 +443,8 @@ class Player extends GameEntity{
   }
 
 
-  num getPVPModifier(String role) {
-    if (role == "Attacker") return this.getAttackerModifier();
-    if (role == "Defender") return this.getDefenderModifier();
-    if (role == "Murderer") return this.getMurderousModifier();
-    return null;
-  }
-
-  bool hasPowers() {
-    if(class_name == SBURBClassManager.WASTE || class_name == SBURBClassManager.GRACE) return false;
-    if(aspect.isThisMe(Aspects.TIME)) return true;  //they have it in the future after all. and
-    if(godTier) return true; //you just do okay.
-    if(land == null) return true;//you're a combo player.
-    if(land.firstCompleted) { //you are starting to face your denizen
-      return true;
-    }
-    return false;
-  }
-
-  num getAttackerModifier() {
-    return this.class_name.getAttackerModifier();
-  }
-
-  num getDefenderModifier() {
-    return this.class_name.getDefenderModifier();
-  }
-
-  num getMurderousModifier() {
-    return this.class_name.getMurderousModifier();
-  }
-
-
-  bool didDenizenKillYou() {
-    if (land != null && this.causeOfDeath.contains(this.land.denizenFeature.name)) {
-      return true; //also return true for minions. this is intentional.;
-    }
-    return false;
-  }
-
-  bool hasInteractionEffect() {
-    return this.class_name.hasInteractionEffect();
-  }
-
-  //IMPORTANT, THE WHOLE POINT OF INTERACTION IS YOU CAN STEAL FROM ENEMIES *OR* ALLIES
-  //SO TAKE IN A GAMEENTITY HERE.
-  void associatedStatsInteractionEffect(GameEntity target) {
-    if (this.hasInteractionEffect()) { //don't even bother if you don't have an interaction effect.
-      //this.session.logger.info("$this: interact start");
-      for (num i = 0; i < this.associatedStats.length; i++) {
-        this.processStatInteractionEffect(target, this.associatedStats[i]);
-      }
-      //this.session.logger.info("$this: interact end");
-    }
-  }
-
-  void processStatInteractionEffect(GameEntity target, AssociatedStat stat) {
-    class_name.processStatInteractionEffect(this, target, stat);
-  }
-
-
   bool isActive([double multiplier = 0.0]) {
     return class_name.isActive(multiplier);
-  }
-
-
-  void makeGuardian() {
-    ////print("guardian for " + player.titleBasic());
-    Player player = this;
-    List<SBURBClass> possibilities = session.available_classes_guardians;
-    if (possibilities.isEmpty) possibilities = new List<SBURBClass>.from(SBURBClassManager.canon);
-    ////print("class names available for guardians is: " + possibilities);
-    Player guardian = randomPlayerWithClaspect(this.session, this.session.rand.pickFrom(possibilities), this.aspect);
-    removeFromArray(guardian.class_name, session.available_classes_guardians);
-    guardian.isTroll = player.isTroll;
-    guardian.quirk.favoriteNumber = player.quirk.favoriteNumber;
-    if (guardian.isTroll) {
-      guardian.quirk = randomTrollSim(this.session.rand, guardian); //not same quirk as guardian;
-    } else {
-      guardian.quirk = randomHumanSim(this.session.rand, guardian);
-    }
-
-    guardian.bloodColor = player.bloodColor;
-    guardian.myLusus = player.myLusus;
-    if (guardian.isTroll == true) { //trolls always use lusus.
-      guardian.object_to_prototype = player.object_to_prototype;
-    }
-    guardian.hairColor = player.hairColor;
-
-    ////print("Guardian className: " + guardian.class_name + " Player was: " + this.class_name);
-    guardian.leftHorn = player.leftHorn;
-    guardian.rightHorn = player.rightHorn;
-    guardian.level_index = 5; //scratched kids start more leveled up
-    guardian.setStat(Stats.POWER, 50);
-    guardian.leader = player.leader;
-    if (this.session.rand.nextDouble() > 0.5) { //have SOMETHING in common with your ectorelative.
-      guardian.interest1 = player.interest1;
-    } else {
-      guardian.interest2 = player.interest2;
-    }
-    guardian.initializeDerivedStuff(); //redo levels and land based on real aspect
-    //this.guardians.add(guardian); //sessions don't keep track of this anymore
-    player._guardian = guardian;
-    guardian._guardian = this; //goes both ways.
   }
 
   void associatedStatsIncreasePower(num powerBoost) {
@@ -909,39 +794,6 @@ class Player extends GameEntity{
     this.guardian.applyPossiblePsionics(); //now you have new psionics
   }
 
-  static List<Player> processDataString(Session session, String dataString) {
-    session.logger.info("TEST DATASTRINGS: going to get players with dataString $dataString, which hopefully wasn't blank.");
-
-    if(session.prospit == null) session.setupMoons("getting replayers");
-    session.logger.info("TEST DATASTRINGS: finished setting up moon");
-
-
-    String params =  window.location.href.substring(window.location.href.indexOf("?") + 1);
-    String base = window.location.href.replaceAll("?$params","");
-    String bs = "${base}?" +dataString;
-
-    String b = (getParameterByName("b", bs));
-    String s = LZString.decompressFromEncodedURIComponent(Uri.encodeFull(getParameterByName("s", bs))); //these are NOT encoded in files, so make sure to encode them
-    String x = (getParameterByName("x", bs));
-
-    //;
-    if (b == null || s == null) return <Player>[];
-    if (b == "null" || s == "null") return <Player>[]; //why was this necesassry????????????????
-    session.logger.info("TEST DATASTRINGS: going to get players with b of $b and s  of $s and x of $x");
-
-    List<Player> ret =  dataBytesAndStringsToPlayers(session,b, s, x);
-    session.logger.info("TEST DATASTRINGS: got players, just need to process a bit");
-
-    //can't let them keep their null session reference.
-
-    for(Player p in ret) {
-      p.session = session;
-      p.syncToSessionMoon();
-      p.initialize();
-    }
-    session.logger.info("TEST DATASTRINGS: done processing data strings");
-  }
-
   void initialize() {
     handleSubAspects();
     this.initializeStats();
@@ -1054,10 +906,6 @@ class Player extends GameEntity{
     this.sprite.doomed = true;
   }
 
-  bool canHelp() {
-    return godTier || isDreamSelf || land == null || land.firstCompleted || (aspect.isThisMe(Aspects.BREATH) && hasPowers()) ;
-  }
-
 
   @override
   void modifyAssociatedStat(num modValue, AssociatedStat stat) {
@@ -1148,78 +996,6 @@ class Player extends GameEntity{
       }
     }
     //;
-  }
-
-  //TODO make all this shit down here static or put in other places.
-
-
-  /******************************************************************
-   *
-   * No Premature Optimization. V1 will have a rendering
-   * Snapshot just be a deep copy of the player.
-   *
-   * If testing shows that having it be this big heavy class is a problem
-   * I can make a tiny version with only what I need.
-   *
-   * DO NOT FALL INTO THE TRAP OF USING THIS NEW TINY ONE FOR DOOMED TIME PLAYERS.
-   *
-   * THEY NEED MORE METHODS THAN YOU THINK THEY DO.
-   *
-   * Find out how you are SUPPOSED to make deep copies of objects in
-   * langugages where objects aren't just shitty hashes.
-   *
-   *****************************************************************/
-
-  //TODO how do you NORMALLY make deep copies of things when all objects aren't secretly hashes?
-  //get rid of thigns doomed time players were using. they are just players. just like this is just a player
-  //until ll8r when i bother to make it a mini class of just stats.
-  static Player makeRenderingSnapshot(Player player, [bool saveCanvas = true]) {
-    Player ret = new Player(player.session, player.class_name, player.aspect, player.object_to_prototype, player.moon, player.godDestiny);
-    ret.robot = player.robot;
-    ret.specibus = player.specibus.copy();
-    ret.gnosis = player.gnosis;
-    ret.doomed = player.doomed;
-    ret.ghost = player.ghost;
-    ret.brainGhost = player.brainGhost;
-    ret.causeOfDrain = player.causeOfDrain;
-    ret.session = player.session;
-    ret.id = player.id;
-    ret.mylevels = player.mylevels;
-    ret.level_index = player.level_index;
-    ret.trickster = player.trickster;
-    ret.baby_stuck = player.baby_stuck;
-    ret.sbahj = player.sbahj;
-    ret.influenceSymbol = player.influenceSymbol;
-    ret.grimDark = player.grimDark;
-    ret.victimBlood = player.victimBlood;
-    ret.murderMode = player.murderMode;
-    ret.leftMurderMode = player.leftMurderMode; //scars
-    ret.dead = player.dead;
-    ret.isTroll = player.isTroll;
-    ret.godTier = player.godTier;
-    ret.isDreamSelf = player.isDreamSelf;
-    ret.hair = player.hair;
-    ret.bloodColor = player.bloodColor;
-    ret.hairColor = player.hairColor;
-    ret.chatHandle = player.chatHandle;
-    ret.leftHorn = player.leftHorn;
-    ret.rightHorn = player.rightHorn;
-    ret.quirk = player.quirk;
-    ret.baby = player.baby;
-    ret.causeOfDeath = player.causeOfDeath;
-    ret.session = player.session; //session is non negotiable.
-    ret.interest1 = player.interest1;
-    ret.interest2 = player.interest2;
-    ret.stats = player;
-    ret.dreamPalette = player.dreamPalette;
-    //;
-    if(saveCanvas && player.canvas != null) {
-      ret.canvas = player.canvas; //you're just for rendering
-    }else if(!saveCanvas) {
-      // ;
-      ret.canvas = null; //re render yourself. you're a ghost or a doomed time clone or some shit
-    }
-    return ret;
   }
 
 }

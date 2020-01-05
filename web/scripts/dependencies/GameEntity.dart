@@ -130,67 +130,6 @@ class GameEntity extends Object with StatOwner   {
     }
   }
 
-
-  Scepter get scepter {
-    for(Item item in sylladex) {
-      if(item is Scepter) {
-        return item;
-      }
-    }
-  }
-
-  bool get alliedToPlayers {
-
-    //big bads are never allies
-    if(villain) return false;
-    if(partyLeader != null && partyLeader.villain) return false;
-
-    //lots of ways to be on player's side
-    if(this is Sprite) return true; //you're a guide
-    if(this is Player) return true; //you're a player
-    //you're prospit
-    if(this is Carapace && (this as Carapace).type == Carapace.PROSPIT) return true;
-    //if you're a companion you're an ally.
-    if(partyLeader != null && (partyLeader is Player)) return true;
-
-    //default
-    return false;
-  }
-
-  //my scenes can trigger behavior in other things that makes them unable to do their own scenes.
-  //this is intended. probably.
-  void processScenes() {
-    // UserTag previousTag = session.createDebugTag("Processing ${this.runtimeType} Scene");
-
-    if(!addedSerializableScenes) {
-      addSerializableScenes();
-      addedSerializableScenes = true;
-    }
-    //happens before loop cuz don't want it to go one more time
-    handleRemovingScenes();
-
-    //can do as many as you want, so long as you haven't been taken out of availibility
-    for(Scene s in scenes) {
-      s.gameEntity = this;
-      // ;
-      //if one scene makes you unavailable no future scenes
-      //EVEN THE DEAD MUST OBEY THE LAW (i.e. unvailable)
-      //also i guess requiring a scene overrides banning a scene???
-      if ((!bannedScenes.contains(s.name) &&(this.available && s.trigger(session.getReadOnlyAvailablePlayers())))) {
-        //session.scenesTriggered.add(s);
-        this.session.numScenes ++;
-        s.renderContent(this.session.newScene(s.runtimeType.toString()));
-      }
-      //no need to keep looping, okay? just stop once you are done.
-    }
-
-    //otherwise will get conconrrent modification error. put at front, new things are important and shiny
-    // if(scenesToAdd.isNotEmpty) print("TEST RECKONING: adding ${scenesToAdd.length} scenes to $this");
-    handleAddingNewScenes();
-
-    // previousTag.makeCurrent();
-  }
-
   //otherwise i risk modifying a concurrent array
   void handleRemovingScenes() {
     for(SerializableScene scene in scenesToRemove) {
@@ -200,34 +139,11 @@ class GameEntity extends Object with StatOwner   {
     }
   }
 
-  void handleAddingNewScenes() {
-    if(scenesToAdd.isNotEmpty) {
-      scenes.insertAll(0,scenesToAdd);
-      scenesToAdd.clear();
-    }
-  }
-
 
   List<GameEntity> get companionsCopy {
     //don't want there to be a way to get companions directly
     //cuz then i might add and remove without going through methods.
     return new List<GameEntity>.from(_companions);
-  }
-
-  void addCompanion(GameEntity companion) {
-    if(companion.partyLeader != this && companion.partyLeader != null) companion.partyLeader.removeCompanion(companion);
-    companion.partyLeader = this;
-    for(Scene s in companion.scenes) {
-      if(s is MailSideQuest) {
-        scenesToAdd.insert(0, new MailSideQuest(session));
-      }
-    }
-    _companions.add(companion);
-  }
-
-  void removeCompanion(GameEntity companion) {
-    companion.partyLeader = null;
-    _companions.remove(companion);
   }
 
 
@@ -250,29 +166,6 @@ class GameEntity extends Object with StatOwner   {
     }
   }
 
-  Iterable<AssociatedStat> get associatedStatsFromAspect => associatedStats.where((AssociatedStat c) => c.isFromAspect);
-
-  //otherwise ids won't be stable across yards/resets etc.
-  static void resetNextIdTo(int val) {
-    _nextID = val;
-  }
-
-
-  Stat get highestStat {
-    Stat ret = stats.first;
-    for(Stat s in stats) {
-      //stats.getBase lets you get raw value, not multiplieid
-      if(s != Stats.CURRENT_HEALTH && getStat(s)/s.coefficient > getStat(ret)/ret.coefficient) {
-        //;
-        ret = s;
-      }
-    }
-    return ret;
-  }
-
-
-  //TODO grab out every method that current gameEntity, Player and PlayerSnapshot are required to have.
-  //TODO make sure Player's @overide them.
 
   @override
   String toString() {
@@ -352,22 +245,6 @@ class GameEntity extends Object with StatOwner   {
     return ret;
   }
 
-  String htmlTitle() {
-    String ret = "$extraTitle ";;
-    if (this.unconditionallyImmortal) ret = "${ret}Unkillable ";
-    if (this.doomed) ret = "${ret}Doomed ";
-    if (this.villain) ret = "${ret}Villainous ";
-    if (this.crowned != null) ret = "${ret}Crowned ";
-    String pname = title();
-    if (pname == "Yaldabaoth") {
-      List<String> misNames = <String>[ 'Yaldobob', 'Yolobroth', 'Yodelbooger', "Yaldabruh", 'Yogertboner', 'Yodelboth'];
-      ////session.logger.info("Yaldobooger!!! ${this.session.session_id}");
-      pname = this.session.rand.pickFrom(misNames);
-    }
-    if (this.corrupted) pname = Zalgo.generate(this.name); //will i let denizens and royalty get corrupted???
-    return "$ret$pname"; //TODO denizens are aspect colored.  also, that extra span there is to close out the tooltip
-  }
-
   //what gets displayed when you hover over any htmlTitle (even HP)
   String getToolTip() {
     if (Drawing.checkSimMode() == true) {
@@ -440,17 +317,6 @@ class GameEntity extends Object with StatOwner   {
     }
     ret += "</td></tr></table></span>";
     return ret;
-  }
-
-  void copyFromDataString(String data) {
-    String dataWithoutName = data.split("$labelPattern")[1];
-    String rawJSON = LZString.decompressFromEncodedURIComponent(dataWithoutName);
-    copyFromJSON(rawJSON);
-  }
-
-  String toDataString() {
-    //print("data is ${toJSON()}");
-    return  "$name$labelPattern${LZString.compressToEncodedURIComponent(toJSON().toString())}";
   }
 
   JSONObject toJSON() {
@@ -636,29 +502,6 @@ class GameEntity extends Object with StatOwner   {
     }
   }
 
-  void addSerializableScenes() {
-    //session.logger.info("adding serializable scenes for $this, they are $serializableSceneStrings");
-    if(this is Carapace) {
-      //not every carapace is a main character
-      //(otherwise theres too much ai per carapace and older scenes don't trigger.
-      if(session.rand.nextBool()) {
-        serializableSceneStrings.clear();
-        return;
-      }
-    }
-    for(String s in serializableSceneStrings) {
-      if(s!= null && s.isNotEmpty) addSerializalbeSceneFromString(s);
-    }
-  }
-
-  //returns scene in case you wanna know what it was
-  SerializableScene addSerializalbeSceneFromString(String s) {
-    SerializableScene ret = new SerializableScene(session)..copyFromDataString(s);
-    scenesToAdd.add(ret);
-    return ret;
-  }
-
-
 
   String htmlTitleHP() {
     String ret = "<font color ='$fontColor'>";
@@ -666,13 +509,6 @@ class GameEntity extends Object with StatOwner   {
     String pname = this.name;
     if (this.corrupted) pname = Zalgo.generate(this.name); //will i let denizens and royalty get corrupted???
     return "${getToolTip()}$ret$pname (${(this.getStat(Stats.CURRENT_HEALTH)).round()} hp, ${(this.getStat(Stats.POWER)).round()} power)</font></span>"; //TODO denizens are aspect colored. also, that extra span there is to close out the tooltip
-  }
-
-
-  String htmlTitleBasic() {
-    String ret = "";
-    if (this.crowned != null) ret = "${ret}Crowned ";
-    return "$ret $name";
   }
 
   String htmlTitleBasicNoTip() {

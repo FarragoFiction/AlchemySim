@@ -1,8 +1,5 @@
 import "SBURBSim.dart";
 
-//most of these are just so I can say "is this a type of npc" and not any real functionality
-//might be the wrong way to do this. can refactor later. they will have more functionality as time goes on, tho.
-
 class NPC extends GameEntity {
   NPC(String name, Session session) : super(name, session);
 
@@ -124,23 +121,6 @@ class Consort extends NPC {
   //first look up highest stat, then lowest stat to find out what this consort's title is.
   static Map<Stat, Map<Stat, String>> _titles = new Map<Stat, Map<Stat, String>>();
 
-
-}
-
-//denizens are spawned with innate knowledge of a personal fraymotif.
-//TODO eventually put this logic here instead of in player, and have mechanism for
-//creating a denizen live here in a static method.
-class Denizen extends NPC {
-  Denizen(String name, Session session) : super(name, session) {
-    //;
-  }
-
-  @override
-  Denizen clone() {
-    Denizen clone = new Denizen(name, session);
-    copyStatsTo(clone);
-    return clone;
-  }
 
 }
 
