@@ -12,8 +12,6 @@ class StatHolder extends Object with IterableMixin<Stat> implements StatObject {
 
   List<Buff> _buffs = <Buff>[];
 
-  StatHolder();
-
   Iterable<Buff> get buffs => this._buffs;
 
   @override
@@ -135,14 +133,6 @@ class StatHolder extends Object with IterableMixin<Stat> implements StatObject {
     }
   }
 
-  void onDeath() {
-    this._buffs.retainWhere((Buff buff) => buff.persistsThroughDeath);
-  }
-
-  void onCombatEnd() {
-    this._buffs.retainWhere((Buff buff) => buff.combat == false);
-  }
-
   @override
   Iterator<Stat> get iterator => this._base.keys.iterator;
   @override
@@ -166,10 +156,6 @@ class StatHolder extends Object with IterableMixin<Stat> implements StatObject {
       this.removeBuff(name, source);
       this._buffs.add(buff);
     }
-  }
-
-  void removeSpecificBuff(Buff buff) {
-    this._buffs.remove(buff);
   }
 
   void removeBuff(String name, Object source) {
@@ -203,13 +189,9 @@ abstract class StatOwner implements StatObject {
 
   StatHolder createHolder();
 
-  void buffTick() => stats.buffTick();
-  void buffCombatTick() => stats.buffCombatTick();
-
   Iterable<Buff> get buffs => _stats.buffs;
 
   void addBuff(Buff buff, {String name, Object source}) => _stats.addBuff(buff, name:name, source:source);
-  void removeBuff(String name, Object source) => _stats.removeBuff(name, source);
 
   double getStat(Stat stat, [bool raw = false]) => raw ? this.stats.getBase(stat) : this.stats[stat];
   void addStat(Stat stat, num val) => this.stats.addBase(stat, val.toDouble());
@@ -256,20 +238,6 @@ class ProphecyStatHolder<T extends GameEntity> extends OwnedStatHolder<T> {
   }
 }
 
-class PlayerStatHolder extends ProphecyStatHolder<Player> {
-
-  static List<Stat> playerStats = <Stat>[Stats.POWER, Stats.HEALTH, Stats.SBURB_LORE, Stats.SANITY, Stats.FREE_WILL, Stats.MAX_LUCK, Stats.MIN_LUCK, Stats.MOBILITY, Stats.ALCHEMY, Stats.RELATIONSHIPS];
-
-  PlayerStatHolder(Player owner):super(owner);
-
-  @override
-  Iterable<Buff> getBuffsForStat(Stat stat) {
-    List<Buff> b = super.getBuffsForStat(stat).toList();
-    b.addAll(owner.aspect.statModifiers.where((Buff b) => b.stats.contains(stat)));
-    b.addAll(owner.class_name.statModifiers.where((Buff b) => b.stats.contains(stat)));
-    return b;
-  }
-}
 
 class CarapaceStatHolder extends ProphecyStatHolder<Carapace> {
 

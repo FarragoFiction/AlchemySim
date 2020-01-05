@@ -26,7 +26,6 @@ abstract class Stats {
   static List<Stat> _list = <Stat>[];
 
   static Iterable<Stat> get all => _list;
-  static Iterable<Stat> get pickable => _list.where((Stat stat) => stat.pickable);
   static Iterable<Stat> get summarise => _list.where((Stat stat) => stat.summarise);
 
   static Map<String, Stat> byName;
@@ -34,8 +33,6 @@ abstract class Stats {
 
 class Stat {
   final String name;
-  final String emphaticPositive;
-  final String emphaticNegative;
 
   final bool pickable;
   final bool summarise;
@@ -49,7 +46,7 @@ class Stat {
   double minDerived = double.negativeInfinity;
   double maxDerived = double.infinity;
 
-  Stat(String this.name, String this.emphaticPositive, String this.emphaticNegative, {double this.coefficient = 1.0, double this.associatedGrowth = 1.0, bool this.pickable = true, bool this.summarise = true, bool this.transient = false}) {
+  Stat(String this.name,{double this.coefficient = 1.0, double this.associatedGrowth = 1.0, bool this.pickable = true, bool this.summarise = true, bool this.transient = false}) {
     Stats._list.add(this);
   }
 
