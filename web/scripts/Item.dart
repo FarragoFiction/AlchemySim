@@ -100,12 +100,6 @@ class Item implements Comparable<Item> {
     return "${fullName} ${numUpgrades}/${maxUpgrades}";
   }
 
-  void renderForm(Element container) {
-    print ("render form for scene");
-    form = new ItemForm(this, container);
-    form.drawForm();
-  }
-
 
 
   String toString() {

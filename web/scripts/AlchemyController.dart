@@ -114,7 +114,7 @@ Future<Null> start() async {
 //asshole meat sacks don't know what they are doing. And are also hella slow.
 Future<Null> fuckYouABCanHandleThisOnHerOwn() async {
   //player.sylladex.addAll(new List<Item>.from(Item.allUniqueItems)); don't do it. AB TAKES SO FUCKING LONG.
-  Gristmas g = new Gristmas(player.session);
+  Gristmas g = new Gristmas();
   g.player = player;
   List<AlchemyResult> results = g.doAlchemy();
   ABWins abWins = new ABWins(new List<AlchemyResult>.from(results));
@@ -234,19 +234,6 @@ void setAlchemySkill() {
   }
 }
 
-void cheatShowPossibilities(Item item1, Item item2) {
-  List<AlchemyResult> results =  AlchemyResult.planAlchemy(<Item>[item1, item2],player.session);
-  results.sort();
-  resultDiv.setInnerHtml("");
-  for(AlchemyResult result in results) {
-    String type = "AND";
-    if(result is AlchemyResultXOR) type = "XOR";
-    if(result is AlchemyResultOR) type = "OR";
-    resultDiv.appendHtml("<br><br>Type: $type <br>");
-    resultDiv.append(renderItemStats(result.result));
-  }
-}
-
 AlchemyResult getResult(String operation, Item item1, Item item2) {
   AlchemyResult alchemyResult;
   if(operation == AND) {
@@ -335,10 +322,6 @@ void populateSylladex() {
   player.sylladex.addAll(player.aspect.items);
   player.sylladex.addAll(player.class_name.items);
   player.sylladex.add(player.specibus);
-}
-
-void giveRandomItem() {
-  player.sylladex.add(player.session.rand.pickFrom(Item.allUniqueItems));
 }
 
 void makeStatsDisplay() {

@@ -55,40 +55,4 @@ class Stat {
   @override
   String toString() => this.name;
 
-  T min<T extends StatObject>(Iterable<T> from) {
-    double n = double.infinity;
-    T least = null;
-    double s;
-    for (T h in from) {
-      s = h.getStatHolder()[this];
-      if (s < n) {
-        least = h;
-        n = s;
-      }
-    }
-    return least;
-  }
-
-
-  double average(Iterable<StatObject> from, [bool baseStats = false]) {
-    if(from.isEmpty) return 0.0;
-    return this.total(from, baseStats) / from.length;
-  }
-
-  double total(Iterable<StatObject> from, [bool baseStats = false]) {
-    if (baseStats) {
-      return from.map((StatObject o) => o.getStatHolder().getBase(this)).reduce((double a, double b) => a+b);
-    }
-    return from.map((StatObject o) => o.getStatHolder()[this]).reduce((double a, double b) => a+b);
-  }
-
-  int sorter(StatObject a, StatObject b) => a.getStatHolder()[this].compareTo(b.getStatHolder()[this]);
-
-  List<T> sortedList<T extends StatObject>(Iterable<T> iterable, [bool reverse = false]) {
-    List<T> unsorted = iterable.toList();
-    if (reverse) {
-      unsorted = unsorted.reversed.toList();
-    }
-    return unsorted..sort(this.sorter);
-  }
 }

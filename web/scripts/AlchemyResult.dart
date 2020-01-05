@@ -49,10 +49,12 @@ abstract class AlchemyResult implements Comparable<AlchemyResult> {
     combine();
   }
 
+
   String  description(Player p, List<String> templates) {
     templates.addAll(<String>["The ${p.htmlTitleBasicNoTip()} uses Alchemy to combine ${turnArrayIntoHumanSentence(items)} to get ${result.fullName}. ${result.randomDescription(p.session.rand)}"]);
     return p.session.rand.pickFrom(templates);
   }
+
 
   //returns string explaining what happened when you actually did the alchemy.
   String apply(Player p, [bool applyToSpecibus = false]) {
@@ -81,16 +83,6 @@ abstract class AlchemyResult implements Comparable<AlchemyResult> {
     modified.traits = new Set<ItemTrait>.from(result.traits);
     modified.numUpgrades ++;
 
-
-    //
-
-    //remove all other items.
-    if(!p.session.mutator.dreamField) {
-      for (int i = 1; i < items.length; i++) {
-        Item item = items[i];
-        targetItems.remove(item);
-      }
-    }
     return ret;
   }
 
