@@ -30,13 +30,6 @@ class FraymotifEffect {
     return json;
   }
 
-  void renderForm(Element container) {
-    print ("render form for scene");
-    form = new FraymotifEffectForm(this, container);
-    form.drawForm();
-  }
-
-
   void copyFromJSON(JSONObject json) {
     // print("copying fraymotif effect from json $json");
     statName = Stats.byName[json["stat"]];
@@ -49,23 +42,6 @@ class FraymotifEffect {
   }
 
 
-  static List<FraymotifEffect> allEffectsTargetAll() {
-    List<FraymotifEffect> ret = new List<FraymotifEffect>();
-    ret.add(new FraymotifEffect(Stats.POWER, ALLIES, true));
-    ret.add(new FraymotifEffect(Stats.POWER, ALLIES, false));
-    ret.add(new FraymotifEffect(Stats.POWER, ENEMIES, true));
-    ret.add(new FraymotifEffect(Stats.POWER, ENEMIES, false));
-    return ret;
-  }
-
-  static List<FraymotifEffect> allEffectsTargetOne() {
-    List<FraymotifEffect> ret = new List<FraymotifEffect>();
-    ret.add(new FraymotifEffect(Stats.POWER, SELF, true));
-    ret.add(new FraymotifEffect(Stats.POWER, SELF, false));
-    ret.add(new FraymotifEffect(Stats.POWER, ENEMY, true));
-    ret.add(new FraymotifEffect(Stats.POWER, ENEMY, false));
-    return ret;
-  }
 
   void setEffectForPlayer(Player player) {
     Random rand = player.rand;
@@ -296,110 +272,10 @@ class FraymotifEffectForm {
   TextAreaElement dataBox;
   FraymotifEffect owner;
 
-  FraymotifEffectForm(FraymotifEffect this.owner, Element parentContainer) {
-    container = new DivElement();
-    container.classes.add("SceneDiv");
-
-    parentContainer.append(container);
-  }
-
-  void drawForm() {
-    print("drawing new fraymotif form");
-    DivElement help = new DivElement()..text = "Targeting allies helps them, Targeting enemies hurts them. If you damage with a stat, you use your copy of the stat to determine how much damage you do. If you buff with a stat, you raise/lower that stat directly.  If you 'damage' hp for allies you both heal and revive them.";
-    container.append(help);
-    drawDeleteButton();
-    drawDamage();
-    drawTarget();
-    drawStat();
-  }
 
   void syncDataBoxToScene() {
     print("trying to sync data box, owner is ${owner}");
     owner.fraymotif.form.dataBox.value = owner.fraymotif.toDataString();
-  }
-
-
-  void syncFormToOwner() {
-    print("syncing form to scene");
-    owner.damageInsteadOfBuff = damageElement.value == "true";
-    owner.statName = Stats.byName[statElement.value];
-    owner.target = int.parse(targetElement.value);
-
-    syncDataBoxToScene();
-  }
-
-  void drawStat() {
-    print("trying to draw stats");
-    statElement = new SelectElement();
-    List<String> allStatsKnown = new List<String>.from(Stats.byName.keys);
-    for(String key in allStatsKnown) {
-      print("key is $key");
-      OptionElement statOption = new OptionElement()..value = key..text = key;
-      if(owner.statName.name == key) statOption.selected = true;
-      statElement.append(statOption);
-    }
-    container.append(statElement);
-
-    statElement.onChange.listen((e) {
-      owner.statName = Stats.byName[statElement.value];
-      syncDataBoxToScene();
-    });
-
-  }
-
-  void drawTarget() {
-    /*    static int ALLIES = 1;
-    static int ENEMIES = 3;
-    static int SELF = 1;
-    static int ENEMY = 2;
-    */
-    print("trying to draw stats");
-    targetElement = new SelectElement();
-    Map<String,int> map = <String,int>{"SELF":FraymotifEffect.SELF, "SINGLE ENEMY":FraymotifEffect.ENEMY,"ALL ALLIES":FraymotifEffect.ALLIES, "ALL ENEMIES": FraymotifEffect.ENEMIES, };
-    for(String key in map.keys) {
-      print("key is $key");
-      OptionElement statOption = new OptionElement()..value = "${map[key]}"..text = key;
-      if(owner.target == map[key]) statOption.selected = true;
-      targetElement.append(statOption);
-    }
-    container.append(targetElement);
-
-    targetElement.onChange.listen((e) {
-      owner.target = int.parse(targetElement.value);
-      syncDataBoxToScene();
-    });
-  }
-
-  void drawDeleteButton() {
-    ButtonElement delete = new ButtonElement();
-    delete.text = "Remove Effect";
-    delete.onClick.listen((e) {
-      //don't bother knowing where i am, just remove from all
-      owner.fraymotif.effects.remove(owner);
-      container.remove();
-      owner.fraymotif.form.syncDataBoxToOwner();
-    });
-    container.append(delete);
-
-  }
-
-  void drawDamage() {
-    damageElement = new SelectElement();
-    OptionElement damage = new OptionElement()..value = 'true'..text = 'Damage/Heal';
-    OptionElement buff = new OptionElement()..value='false'..text='Debuff/Buff';
-    if(owner.damageInsteadOfBuff) {
-      damage.selected = true;
-    }else {
-      buff.selected = true;
-    }
-    damageElement.append(damage);
-    damageElement.append(buff);
-    container.append(damageElement);
-
-    damageElement.onChange.listen((e) {
-      owner.damageInsteadOfBuff = damageElement.value == "true";
-      syncDataBoxToScene();
-    });
   }
 
 }
