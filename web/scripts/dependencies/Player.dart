@@ -17,16 +17,12 @@ class Player extends GameEntity{
 
   //if 0, not yet woken up.
   double moonChance = 0.0;
-  static num maxHornNumber = 73; //don't fuck with this
-  static num maxHairNumber = 74; //same
   Sprite sprite = null; //gets set to a blank sprite when character is created.
   bool deriveChatHandle = true;
   bool deriveSprite = true;
   bool deriveSpecibus = true;
   bool deriveLand = true;
   String flipOutReason = null; //if it's null, i'm not flipping my shit.
-  Player flippingOutOverDeadPlayer = null; //don't let this go into url. but, don't flip out if the friend is currently alive, you goof.
-  num denizen_index = 0; //denizen quests are in order.
   bool trickster = false;
   bool sbahj = false;
   bool robot = false;
@@ -35,8 +31,6 @@ class Player extends GameEntity{
   Player _guardian = null; //no longer the sessions job to keep track
   bool baby_stuck = false;
   String influenceSymbol = null; //multiple aspects can influence/mind control.
-  Player influencePlayer = null; //who is controlling me? (so i can break free if i have more free will or they die)
-  MiniSnapShot stateBackup = null; //if you get influenced by something, here's where your true self is stored until you break free.
   Aspect aspect;
   Land land;
   //want to be able to see when it's set
@@ -46,7 +40,6 @@ class Player extends GameEntity{
   String chatHandle = null;
   GameEntity object_to_prototype; //mostly will be potential sprites, but sometimes a player
   //List<Relationship> relationships = [];  //TODO keep a list of player relationships and npc relationships. MAYBE don't wax red for npcs? dunno though.
-  bool leveledTheHellUp = false; //triggers level up scene.
   List<String> mylevels = null;
   num level_index = -1; //will be ++ before i query
   bool godTier = false;
@@ -62,19 +55,11 @@ class Player extends GameEntity{
   Quirk quirk = null;
 
   bool godDestiny = false;
-  bool canGodTierRevive = true; //even if a god tier perma dies, a life or time player or whatever can brings them back.
   bool isDreamSelf = false; //players can be triggered for various things. higher their triggerLevle, greater chance of going murdermode or GrimDark.
   bool murderMode = false; //kill all players you don't like. odds of a just death skyrockets.
   bool leftMurderMode = false; //have scars, unless left via death.
-  num corruptionLevelOther = 0; //every 100 points, sends you to next grimDarkLevel.
   num gnosis = 0; //sburbLore causes you to increase a level of this.
-  num grimDark = 0; //  0 = none, 1 = some, 2 = some more 3 = full grim dark with aura and font and everything.
-  bool leader = false;
   double landLevel = 0.0; //at 10, you can challenge denizen.  only space player can go over 100 (breed better universe.)
-  bool denizenFaced = false;
-  bool _denizenDefeated = false;
-  bool denizenMinionDefeated = false;
-
   Moon get moon => _moon;
 
 
@@ -1252,5 +1237,5 @@ class Player extends GameEntity{
     }
     return ret;
   }
-  
+
 }
