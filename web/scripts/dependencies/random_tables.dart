@@ -1,5 +1,6 @@
 import "dart:html";
 import "dart:math" as Math;
+import 'random.dart';
 
 //TODO strip all this out and put in classes. eventually. but for now, just fucking get thigns working
 //little bobby tables
