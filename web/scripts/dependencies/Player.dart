@@ -11,16 +11,12 @@ import 'PlayerSpriteHandler.dart';
 class Player extends GameEntity{
   //TODO trollPlayer subclass of player??? (have subclass of relationship)
   num baby = null;
-  CanvasElement firstStatsCanvas;
-  bool canSkaia = false; //unlocked by finishing quests or by quest bed god tiering.
 
   //set when you set moon, so you know what your dream self looks like even if you don't have a moon.
   Palette dreamPalette;
 
   //if 0, not yet woken up.
   double moonChance = 0.0;
-  num pvpKillCount = 0; //for stats.
-  num timesDied = 0;
   static num maxHornNumber = 73; //don't fuck with this
   static num maxHairNumber = 74; //same
   Sprite sprite = null; //gets set to a blank sprite when character is created.
@@ -31,16 +27,12 @@ class Player extends GameEntity{
   String flipOutReason = null; //if it's null, i'm not flipping my shit.
   Player flippingOutOverDeadPlayer = null; //don't let this go into url. but, don't flip out if the friend is currently alive, you goof.
   num denizen_index = 0; //denizen quests are in order.
-  List<Player> ghostWisdom = <Player>[]; //keeps you from spamming the same ghost over and over for wisdom.
   bool trickster = false;
   bool sbahj = false;
-  List<dynamic> sickRhymes = <dynamic>[]; //oh hell yes. Hell. FUCKING. Yes! TODO: make this its own type -PL
   bool robot = false;
   num ectoBiologicalSource = null; //might not be created in their own session now.
   SBURBClass class_name;
-  Player _guardian = null; //no longer the sessions job to keep track.
-  num number_confessions = 0;
-  num number_times_confessed_to = 0;
+  Player _guardian = null; //no longer the sessions job to keep track
   bool baby_stuck = false;
   String influenceSymbol = null; //multiple aspects can influence/mind control.
   Player influencePlayer = null; //who is controlling me? (so i can break free if i have more free will or they die)
@@ -85,14 +77,6 @@ class Player extends GameEntity{
 
   Moon get moon => _moon;
 
-  String get moonName {
-    if(_moon == null) {
-      session.logger.info("AB: a player without a moon did something that needed a moon. probably kissing someone. whatever.");
-      return "[ERROR: MOON NOT FOUND]";
-    }else {
-      return _moon.name;
-    }
-  }
 
   void set moon(Moon m) {
     if(m != null) ;
@@ -103,8 +87,6 @@ class Player extends GameEntity{
     }
   }
 
-  //no longer allowed to set it.
-  bool get denizenDefeated => _denizenDefeated;
 
   @override
   List<String> get bureaucraticBullshit {
@@ -118,10 +100,6 @@ class Player extends GameEntity{
   }
 
 
-  void set denizenDefeatedExplicitlySet(bool x) {
-    _denizenDefeated = x;
-  }
-
   @override
   String get name => "${title()}($chatHandle)";
 
@@ -132,16 +110,7 @@ class Player extends GameEntity{
     //testing something
   }
 
-  @override
-  StatHolder createHolder() => new PlayerStatHolder(this);
 
-  bool fromThisSession(Session session) {
-    return (this.ectoBiologicalSource == null || this.ectoBiologicalSource == session.session_id);
-  }
-
-  bool interestedInCategory(InterestCategory c) {
-    return (interest1.category == c || interest2.category == c);
-  }
 
   //stop having references to fake as fuck moons yo.
   //make sure you refere to private moon so you don't get in infinite loop
@@ -158,45 +127,6 @@ class Player extends GameEntity{
     }
   }
 
-  bool isQuadranted() {
-    if (!this
-        .getHearts()
-        .isEmpty) return true;
-    if (!this
-        .getClubs()
-        .isEmpty) return true;
-    if (!this
-        .getDiamonds()
-        .isEmpty) return true;
-    if (!this
-        .getSpades()
-        .isEmpty) return true;
-    return false;
-  }
-
-  List<Relationship> getClubs() {
-    List<Relationship> ret = <Relationship>[];
-    for (num i = 0; i < this.relationships.length; i++) {
-      Relationship r = this.relationships[i];
-      if (r.saved_type == r.clubs) {
-        ret.add(r);
-      }
-    }
-    return ret;
-  }
-
-  double get trashMobGrist => 10.0;
-
-  ///not the only way to get grist, but you get a small base amount just for doing that shit
-  void increaseLandLevel([double points = 1.0]) {
-    landLevel += points; //TESTING what right value is to balance with FrogRewards
-    increaseGrist();
-  }
-
-  void increaseGrist([double points = -1.0]) {
-    if(points < 0) points = trashMobGrist;
-    grist += points;
-  }
 
   void copyFromOCDataString(String ocDataString) {
     String bs = "${window.location}?" + ocDataString; //need "?" so i can parse as url
@@ -208,27 +138,6 @@ class Player extends GameEntity{
     this.copyFromPlayer(players[0]);
   }
 
-  @override
-  List<Relationship> getQuadrants() {
-    List<Relationship> ret = new List<Relationship>();
-    ret.addAll(getHearts());
-    ret.addAll(getSpades());
-    ret.addAll(getDiamonds());
-    ret.addAll(getClubs());
-    return ret;
-  }
-
-  @override
-  List<Relationship> getHearts() {
-    List<Relationship> ret = <Relationship>[];
-    for (num i = 0; i < this.relationships.length; i++) {
-      Relationship r = this.relationships[i];
-      if (r.saved_type == r.heart) {
-        ret.add(r);
-      }
-    }
-    return ret;
-  }
 
   @override
   List<Fraymotif> get fraymotifsForDisplay {
@@ -247,72 +156,6 @@ class Player extends GameEntity{
       }
     }
     return ret;
-  }
-
-  @override
-  void flipOut(String reason) {
-    ////print("flip out method called for: " + reason);
-    this.flippingOutOverDeadPlayer = null;
-    this.flipOutReason = reason;
-  }
-
-
-
-  List<Relationship> getSpades() {
-    List<Relationship> ret = <Relationship>[];
-    for (num i = 0; i < this.relationships.length; i++) {
-      Relationship r = this.relationships[i];
-      if (r.saved_type == r.spades) {
-        ret.add(r);
-      }
-    }
-    return ret;
-  }
-
-  @override
-  List<Relationship> getDiamonds() {
-    List<Relationship> ret = <Relationship>[];
-    for (num i = 0; i < this.relationships.length; i++) {
-      Relationship r = this.relationships[i];
-      if (r.saved_type == r.diamond) {
-        ret.add(r);
-      }
-    }
-    return ret;
-  }
-
-  String chatHandleShort() {
-    RegExp exp = new RegExp(r"""\b(\w)|[A-Z]""", multiLine: true);
-    return joinMatches(exp.allMatches(chatHandle)).toUpperCase();
-  }
-
-  String chatHandleShortCheckDup(String otherHandle) {
-    RegExp exp = new RegExp(r"""\b(\w)|[A-Z]""", multiLine: true);
-    String tmp = joinMatches(exp.allMatches(chatHandle)).toUpperCase();
-    if (tmp == otherHandle) {
-      tmp = "${tmp}2";
-    }
-    return tmp;
-  }
-
-
-  @override
-  void makeAlive() {
-    if (this.dead == false) return; //don't do all this.
-    if (this.stateBackup != null) this.stateBackup.restoreState(this);
-    this.influencePlayer = null;
-    this.influenceSymbol = null;
-    this.dead = false;
-    this.murderMode = false;
-    this.setStat(Stats.CURRENT_HEALTH, Math.max(this.getStat(Stats.HEALTH), 1)); //if for some reason your hp is negative, don't do that.
-    ////print("HP after being brought back from the dead: " + this.currentHP);
-    this.grimDark = 0;
-    this.addStat(Stats.SANITY, -101); //dying is pretty triggering.
-    this.flipOutReason = "they just freaking died";
-    //this.leftMurderMode = false; //no scars
-    this.victimBlood = null; //clean face
-    if(canvas == null) initSpriteCanvas();
-    this.renderSelf("makeAlive");
   }
 
   Player get guardian {
@@ -393,10 +236,6 @@ class Player extends GameEntity{
     return ret;
   }
 
-  @override
-  String htmlTitleBasicWithTip() {
-    return "${getToolTip()}${this.aspect.fontTag()}${this.titleBasic()}</font></span>";
-  }
 
   String htmlTitleBasic() {
     return "${this.aspect.fontTag()}${this.titleBasic()}</font> (<font color = '${getChatFontColor()}'>${chatHandle}</font>)";
@@ -508,28 +347,6 @@ class Player extends GameEntity{
     }
     ret += "</td></tr></table></span>";
     return ret;
-  }
-
-
-  String getNextLevel() {
-    this.level_index ++;
-    String ret = this.level_index >= this.mylevels.length ? "[Off the top of the Echeladder]" : this.mylevels[this.level_index];
-    return ret;
-  }
-
-
-  String canMindControl() {
-    for (num i = 0; i < this.fraymotifs.length; i++) {
-      if (this.fraymotifs[i].name == "Mind Control") return this.fraymotifs[i].name;
-    }
-    return null;
-  }
-
-  String canGhostCommune() {
-    for (num i = 0; i < this.fraymotifs.length; i++) {
-      if (this.fraymotifs[i].name == "Ghost Communing") return this.fraymotifs[i].name;
-    }
-    return null;
   }
 
   List<Fraymotif> psionicList() {
@@ -655,11 +472,6 @@ class Player extends GameEntity{
     }
   }
 
-  bool isVoidAvailable() {
-    Player light = findAspectPlayer(findLiving(this.session.players), Aspects.LIGHT);
-    if (light != null && light.godTier) return false;
-    return true;
-  }
 
   num getPVPModifier(String role) {
     if (role == "Attacker") return this.getAttackerModifier();
@@ -691,103 +503,12 @@ class Player extends GameEntity{
     return this.class_name.getMurderousModifier();
   }
 
-  String getDenizen() {
-    return this.land.denizenFeature.name; //<--convineint that it wasn't hard to upgrade.
-  }
 
   bool didDenizenKillYou() {
     if (land != null && this.causeOfDeath.contains(this.land.denizenFeature.name)) {
       return true; //also return true for minions. this is intentional.;
     }
     return false;
-  }
-
-  bool justDeath() {
-    if(session.mutator.rageField) return true; //you earned it, kid. no take backs.
-    if(unconditionallyImmortal) return false;
-    if(villain) return true;//you earned it too.
-    bool ret = false;
-
-    //impossible to have a just death from a denizen or denizen minion. unless you are corrupt.
-    if (this.didDenizenKillYou() && (this.grimDark <= 2)) {
-      return false;
-    } else if (this.grimDark > 2) {
-      //;
-      return true; //always just if the denizen puts down a corrupt player.
-    }
-
-
-    //if much less friends than enemies.
-    if (this
-        .getFriends()
-        .length < this
-        .getEnemies()
-        .length) {
-      if (this.session.rand.nextDouble() > .9) { //just deaths are rarer without things like triggers.
-        ret = true;
-      }
-      //way more likely to be a just death if you're being an asshole.
-
-
-      if ((this.murderMode || this.grimDark > 2)) {
-        double r = rand.nextDouble();
-        ////print("rand is: " + rand);
-        if (r > .2) {
-          ////print(" just death for: " + this.title() + "rand is: " + rand)
-          ret = true;
-        }
-      }
-    } else { //you are a good person. just corrupt.
-      //way more likely to be a just death if you're being an asshole.
-      if ((this.murderMode || this.grimDark > 2) && rand.nextDouble() > .5) {
-        ret = true;
-      }
-    }
-    ////print(ret);
-    //return true; //for testing
-    return ret;
-  }
-
-  bool heroicDeath() {
-    if(unconditionallyImmortal) return false;
-    bool ret = false;
-    //maybe you derp died, sure. but....probably this was heroic
-    if(myKiller != null && myKiller.villain == true && session.rand.nextDouble() > 0.3) {
-      return true;
-    }
-
-    //it's not heroic derping to death against a minion or whatever, or in a solo fight.
-    if (this.didDenizenKillYou() || this.causeOfDeath == "from a Bad Break.") {
-      return false;
-    }
-
-    //if far more enemies than friends.
-    if (this
-        .getFriends()
-        .length > this
-        .getEnemies()
-        .length) {
-      if (this.session.rand.nextDouble() > .6) {
-        ret = true;
-      }
-      //extra likely if you just killed the king/queen, you hero you.
-      if ((this.session.battlefield.blackKing.getStat(Stats.CURRENT_HEALTH) <= 0 || this.session.battlefield.blackKing.dead == true) && this.session.rand.nextDouble() > .2) {
-        ret = true;
-      }
-    } else { //unlikely hero
-      if (this.session.rand.nextDouble() > .8) {
-        ret = true;
-      }
-      //extra likely if you just killed the king/queen, you hero you.
-      if (this.session.battlefield.blackKing.getStat(Stats.CURRENT_HEALTH) <= 0 || this.session.battlefield.blackKing.dead == true && rand.nextDouble() > .4) {
-        ret = true;
-      }
-    }
-
-    if (ret) {
-      ////;
-    }
-    return ret;
   }
 
   bool hasInteractionEffect() {
@@ -810,113 +531,9 @@ class Player extends GameEntity{
     class_name.processStatInteractionEffect(this, target, stat);
   }
 
-  @override
-  String interactionEffect(GameEntity target) {
-    String ret = "";
-    this.associatedStatsInteractionEffect(target);
-
-    //no longer do this seperate. if close enough to modify with powers, close enough to be...closer.
-    Relationship r1 = this.getRelationshipWith(target);
-    if (r1 != null) {
-      r1.moreOfSame();
-    }
-
-    //doom players with an interaction effect also spread doom. this is bad in short term and good in long
-    //SHOULD be only bad against enemies, since they don't have revival mechanisms. right???
-    if(hasInteractionEffect() && aspect.isThisMe(Aspects.DOOM) && target.prophecy == ProphecyState.NONE) {
-      ret = "There is a prophecy of the ${target.htmlTitle()}'s death.";
-      target.prophecy = ProphecyState.ACTIVE;
-    }
-    //even if there is no effect, still is doing relationship shit.
-    ret += class_name.interactionFlavorText(this, target, session.rand);
-    return ret;
-  }
-
-
-  List<Player> performEctobiology(Session session) {
-    session.stats.ectoBiologyStarted = true;
-    List<Player> playersMade = findPlayersWithoutEctobiologicalSource(session.players);
-    setEctobiologicalSource(playersMade, session.session_id);
-    return playersMade;
-  }
 
   bool isActive([double multiplier = 0.0]) {
     return class_name.isActive(multiplier);
-  }
-
-
-  @override
-  Player clone() {
-    Player clone = new Player();
-    super.copyStatsTo(clone);
-    //clone stats.
-    clone.baby = baby;
-    //don't let that bitch be null
-    clone.dreamPalette = dreamPalette;
-
-    clone.pvpKillCount = pvpKillCount; //for stats.
-    clone.timesDied = timesDied;
-
-    if(sprite != null) clone.sprite =  sprite.clone(); //gets set to a blank sprite when character is created.
-    clone.deriveChatHandle = deriveChatHandle;
-    clone.deriveLand = deriveLand;
-    ;
-    clone.moon = moon;
-    clone.flipOutReason = flipOutReason; //if it's null, i'm not flipping my shit.
-    clone.flippingOutOverDeadPlayer = flippingOutOverDeadPlayer; //don't let this go into url. but, don't flip out if the friend is currently alive, you goof.
-    clone.denizen_index = denizen_index; //denizen quests are in order.
-    clone.causeOfDrain = causeOfDrain; //just ghost things
-    clone.ghostWisdom = ghostWisdom; //keeps you from spamming the same ghost over and over for wisdom.
-
-    clone.trickster = trickster;
-    clone.sbahj = sbahj;
-    clone.sickRhymes = sickRhymes; //oh hell yes. Hell. FUCKING. Yes!
-    clone.robot = robot;
-    clone.ectoBiologicalSource = ectoBiologicalSource; //might not be created in their own session now.
-    clone.class_name = class_name;
-    clone.number_confessions = number_confessions;
-    clone.number_times_confessed_to = number_times_confessed_to;
-    clone.baby_stuck = baby_stuck;
-    clone.influenceSymbol = influenceSymbol; //multiple aspects can influence/mind control.
-    clone.influencePlayer = influencePlayer; //TODO  probably don't have to clone this. who is controlling me? (so i can break free if i have more free will or they die)
-    clone.stateBackup = stateBackup; //if you get influenced by something, here's where your true self is stored until you break free.
-    clone.aspect = aspect;
-    clone.land = land;
-    clone.interest1 = interest1;
-    clone.interest2 = interest2;
-    clone.chatHandle = chatHandle;
-    clone.object_to_prototype = object_to_prototype;
-    clone.moon = moon;
-    clone.leveledTheHellUp = leveledTheHellUp; //triggers level up scene.
-    clone.mylevels = mylevels;
-    clone.level_index = level_index; //will be ++ before i query
-    clone.godTier = godTier;
-    clone.victimBlood = victimBlood; //used for murdermode players.
-    clone.hair = hair;
-    clone.hairColor = hairColor;
-    clone.dreamSelf = dreamSelf;
-    clone.isTroll = isTroll; //later
-    clone.bloodColor = bloodColor;
-    clone.leftHorn = leftHorn;
-    clone.rightHorn = rightHorn;
-    clone.myLusus = myLusus;
-    clone.quirk = quirk; //probably don't have to clone this???
-    clone.godDestiny = godDestiny;
-    clone.canGodTierRevive = canGodTierRevive; //even if a god tier perma dies, a life or time player or whatever can brings them back.
-    clone.isDreamSelf = isDreamSelf; //players can be triggered for various things. higher their triggerLevle, greater chance of going murdermode or GrimDark.
-    clone.murderMode = murderMode; //kill all players you don't like. odds of a just death skyrockets.
-    clone.leftMurderMode = leftMurderMode; //have scars, unless left via death.
-    clone.corruptionLevelOther = corruptionLevelOther; //every 100 points, sends you to next grimDarkLevel.
-    clone.gnosis = gnosis;
-    clone.grimDark = grimDark; //  0 = none, 1 = some, 2 = some more 3 = full grim dark with aura and font and everything.
-    clone.leader = leader;
-    clone.landLevel = landLevel; //at 10, you can challenge denizen.  only space player can go over 100 (breed better universe.)
-    clone.denizenFaced = denizenFaced;
-    clone.denizenDefeatedExplicitlySet = denizenDefeated;
-    clone.denizenMinionDefeated = denizenMinionDefeated;
-    clone.session = session;
-    //do not clone guardian, thing that calls you will do that
-    return clone;
   }
 
 
@@ -971,11 +588,6 @@ class Player extends GameEntity{
     return this.class_name.modPowerBoostByClass(powerBoost, stat);
   }
 
-  double getPowerForEffects() {
-    double p = this.stats[Stats.POWER] / Stats.POWER.coefficient;
-    p = smoothCap(p, 200.0, 75.0, 0.5);
-    return p;
-  }
 
   void processStatPowerIncrease(num powerBoost, AssociatedStat stat) {
     powerBoost = this.modPowerBoostByClass(powerBoost, stat);
@@ -988,39 +600,6 @@ class Player extends GameEntity{
         this.session.players[i].modifyAssociatedStat(powerBoost / this.session.players.length, stat);
       }
     }
-  }
-
-  @override
-  void increasePower([num magnitude = 1, num cap = 5.1]) {
-    magnitude = Math.min(magnitude, cap); //unless otherwise specified, don't let thieves and rogues go TOO crazy.
-    ////;
-    if (this.session.rand.nextDouble() > .9) {
-      this.leveledTheHellUp = true; //that multiple of ten thing is bullshit.
-    }
-    num powerBoost = magnitude * this.class_name.powerBoostMultiplier * this.aspect.powerBoostMultiplier; // this applies the page 5x mult
-
-    //this.addStat(Stats.POWER, Math.max(1, powerBoost)); //no negatives
-    //wastes need to be nerfed even more
-    this.addStat(Stats.EXPERIENCE, Math.max(1, powerBoost));
-
-    this.associatedStatsIncreasePower(powerBoost);
-    //gain a bit of hp, otherwise denizen will never let players fight them if their hp isn't high enough.
-    /*if (this.godTier || this.session.rand.nextDouble() > .85) {
-            this.addStat(Stats.HEALTH, 5);
-            this.addStat(Stats.CURRENT_HEALTH, 5);
-        }*/
-    this.addStat(Stats.EXPERIENCE, this.rand.nextDoubleRange(0.1, 1.0));
-    //TODO figure out what the actual fuck this line was supposed to be doing. set power to ITSELF???
-    //IT IS THE REASON WHY 40+5 = 65 and i do not even know why. stats are still too high though.
-    // if (this.getStat(Stats.POWER) > 0) this.setStat(Stats.POWER, this.getStat(Stats.POWER).round());
-
-    // //;
-    this.heal();
-  }
-
-  String shortLand() {
-    if (land == null) throw "Should Never Ask for the Abbreviation for a Null Land";
-    return land.shortName;
   }
 
   @override
@@ -1038,22 +617,6 @@ class Player extends GameEntity{
   @override
   String htmlTitleHP() {
     return "${getToolTip()}${this.aspect.fontTag()}${this.title()} (${(this.getStat(Stats.CURRENT_HEALTH)).round()}hp, ${(this.getStat(Stats.POWER)).round()} power)</font></span>";
-  }
-
-  void generateBlandRelationships(List<Player> friends) {
-    for (num i = 0; i < friends.length; i++) {
-      if (friends[i] != this) { //No, Karkat, you can't be your own Kismesis.
-        //one time in a random sim two heirresses decided to kill each other and this was so amazing and canon compliant
-        //that it needs to be a thing.
-        Relationship r = Relationship.randomBlandRelationship(this, friends[i]);
-        if (this.isTroll && this.bloodColor == "#99004d" && friends[i].isTroll && friends[i].bloodColor == "#99004d") {
-          r.value = -20; //biological imperitive to fight for throne.
-          this.addStat(Stats.SANITY, -100);
-          friends[i].addStat(Stats.SANITY, -100);
-        }
-        this.relationships.add(r);
-      }
-    }
   }
 
   void generateRelationships(List<Player> friends) {
@@ -1075,105 +638,7 @@ class Player extends GameEntity{
     }
   }
 
-  void checkBloodBoost(List<Player> players) {
-    if (this.aspect.isThisMe(Aspects.BLOOD)) { // TODO: ASPECTS - migrate to per-aspect boost?
-      for (num i = 0; i < players.length; i++) {
-        players[i].boostAllRelationships();
-      }
-    }
-  }
 
-  void nullAllRelationships() {
-    for (num i = 0; i < this.relationships.length; i++) {
-      this.relationships[i].value = 0;
-      this.relationships[i].saved_type = this.relationships[i].neutral;
-    }
-  }
-
-  void boostAllRelationships() {
-    for (num i = 0; i < this.relationships.length; i++) {
-      this.relationships[i].increase();
-    }
-  }
-
-  @override
-  void boostAllRelationshipsBy(num boost) {
-    for (num i = 0; i < this.relationships.length; i++) {
-      this.relationships[i].value += boost;
-    }
-  }
-
-  void damageAllRelationships() {
-    for (num i = 0; i < this.relationships.length; i++) {
-      this.relationships[i].decrease();
-    }
-  }
-
-  @override
-  void boostAllRelationshipsWithMeBy(num boost) {
-    for (num i = 0; i < this.relationships.length; i++) {
-      Player player = this.relationships[i].target;
-      Relationship r = this.getRelationshipWith(player);
-      if (r != null) {
-        r.value += boost;
-      }
-    }
-  }
-
-  void boostAllRelationshipsWithMe() {
-    for (num i = 0; i < this.relationships.length; i++) {
-      Player player = this.relationships[i].target;
-      Relationship r = this.getRelationshipWith(player);
-      if (r != null) {
-        r.increase();
-      }
-    }
-  }
-
-  void damageAllRelationshipsWithMe() {
-    for (num i = 0; i < session.players.length; i++) {
-      Relationship r = this.getRelationshipWith(session.players[i]);
-      if (r != null) {
-        r.decrease();
-      }
-    }
-  }
-
-  num getAverageRelationshipValue() {
-    if (this.relationships.isEmpty) return 0;
-    num ret = 0;
-    for (num i = 0; i < this.relationships.length; i++) {
-      ret += this.relationships[i].value;
-    }
-    return ret / this.relationships.length;
-  }
-
-  Player hasDiamond() {
-    for (num i = 0; i < this.relationships.length; i++) {
-      if (this.relationships[i].saved_type == this.relationships[i].diamond && !this.relationships[i].target.dead) {
-        return this.relationships[i].target;
-      }
-    }
-    return null;
-  }
-
-  Player hasDeadDiamond() {
-    for (num i = 0; i < this.relationships.length; i++) {
-      if (this.relationships[i].saved_type == this.relationships[i].diamond && this.relationships[i].target.dead) {
-        return this.relationships[i].target;
-      }
-    }
-    return null;
-  }
-
-  Player hasDeadHeart() {
-    for (num i = 0; i < this.relationships.length; i++) {
-      if (this.relationships[i].saved_type == this.relationships[i].heart && this.relationships[i].target.dead) {
-        return this.relationships[i].target;
-      }
-    }
-    return null;
-  }
 
   @override
   Relationship getRelationshipWith(GameEntity player) {
@@ -1195,67 +660,6 @@ class Player extends GameEntity{
     return null;
   }
 
-  Player getWhoLikesMeBestFromList(List<Player> potentialFriends) {
-    Relationship bestRelationshipSoFar = this.relationships[0];
-    Player friend = bestRelationshipSoFar.target;
-    for (num i = 0; i < potentialFriends.length; i++) {
-      Player p = potentialFriends[i];
-      if (p != this) {
-        Relationship r = p.getRelationshipWith(this);
-        if (r != null && r.value > bestRelationshipSoFar.value) {
-          bestRelationshipSoFar = r;
-          friend = p;
-        }
-      }
-    }
-    //can't be my best friend if they're an enemy
-    if (bestRelationshipSoFar.value > 0 && potentialFriends.contains(friend)) {
-      return friend;
-    }
-    return null;
-  }
-
-  Player getWhoLikesMeLeastFromList(List<Player>potentialFriends) {
-    Relationship worstRelationshipSoFar = this.relationships[0];
-    Player enemy = worstRelationshipSoFar.target;
-    for (num i = 0; i < potentialFriends.length; i++) {
-      Player p = potentialFriends[i];
-      if (p != this) {
-        Relationship r = p.getRelationshipWith(this);
-        if (r != null && r.value < worstRelationshipSoFar.value) {
-          worstRelationshipSoFar = r;
-          enemy = p;
-        }
-      }
-    }
-    //can't be my worst enemy if they're a friend.
-    if (worstRelationshipSoFar.value < 0 && potentialFriends.contains(enemy)) {
-      return enemy;
-    }
-    return null;
-  }
-
-  bool hasRelationshipDrama() {
-    for (num i = 0; i < this.relationships.length; i++) {
-      this.relationships[i].type(); //check to see if there is a relationship change.
-      if (this.relationships[i].drama) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  List<Relationship> getRelationshipDrama() {
-    List<Relationship> ret = <Relationship>[];
-    for (num i = 0; i < this.relationships.length; i++) {
-      Relationship r = this.relationships[i];
-      if (r.drama) {
-        ret.add(r);
-      }
-    }
-    return ret;
-  }
-
   String getChatFontColor() {
     if (this.isTroll) {
       return this.bloodColor;
@@ -1264,97 +668,6 @@ class Player extends GameEntity{
     }
   }
 
-  @override
-  List<Player> getFriendsFromList(List<GameEntity> potentialFriends) {
-    List<Player> ret = <Player>[];
-    for (num i = 0; i < potentialFriends.length; i++) {
-      GameEntity p = potentialFriends[i];
-      if (p != this && p is Player) { //TODO sorry bro, npcs will be allies or some shit
-        Relationship r = this.getRelationshipWith(potentialFriends[i]);
-        if (r != null && r.value > 0) {
-          ret.add(p);
-        }
-      }
-    }
-    return ret;
-  }
-
-  List<Player> getEnemiesFromList(List<GameEntity> potentialEnemies) {
-    if(session.mutator.lightField) return [session.mutator.inSpotLight];
-    List<Player> ret = <Player>[];
-    for (num i = 0; i < potentialEnemies.length; i++) {
-      GameEntity p = potentialEnemies[i];
-      if (p != this && p is Player) { //sorry bro, GameEntities will be "bad guys" or some shit
-        Relationship r = this.getRelationshipWith(potentialEnemies[i]);
-        if (r.value < 0) {
-          ret.add(p);
-        }
-      }
-    }
-    return ret;
-  }
-
-  num getLowestRelationshipValue() {
-    Relationship worstRelationshipSoFar = this.relationships[0];
-    for (num i = 1; i < this.relationships.length; i++) {
-      Relationship r = this.relationships[i];
-      if (r.value < worstRelationshipSoFar.value) {
-        worstRelationshipSoFar = r;
-      }
-    }
-    return worstRelationshipSoFar.value;
-  }
-
-  // both identical to GameEntity -PL
-  /*@override
-	double getTotalBuffForStat(String statName){
-	    double ret = 0.0;
-	    for(num i = 0; i<this.buffs.length; i++){
-	        Buff b = this.buffs[i];
-	        if(b.name == statName) ret += b.value;
-	    }
-	    return ret;
-	}
-	String humanWordForBuffNamed(statName){
-        if(statName == "MANGRIT") return "powerful";
-        if(statName == Stats.HEALTH) return "sturdy";
-        if(statName == Stats.RELATIONSHIPS) return "friendly";
-        if(statName == Stats.MOBILITY) return "fast";
-        if(statName == Stats.SANITY) return "calm";
-        if(statName == Stats.FREE_WILL) return "willful";
-        if(statName == Stats.MAX_LUCK) return "lucky";
-        if(statName == Stats.MIN_LUCK) return "lucky";
-        if(statName == Stats.ALCHEMY) return "creative";
-        return "???";
-	}*/
-  @override
-  String describeBuffs() {
-    List<String> ret = <String>[];
-    Iterable<Stat> allStats = Stats.all;
-    for (Stat stat in allStats) {
-      double withbuffs = this.stats.derive(stat); // functionally this.stats[stat]
-      double withoutbuffs = this.stats.derive(stat, (Buff b) => !b.combat);
-      double diff = withbuffs - withoutbuffs;
-      //;
-      //only say nothing if equal to zero
-      if (diff > 0) ret.add("more ${stat.emphaticPositive}");
-      if (diff < 0) ret.add("less ${stat.emphaticPositive}");
-    }
-    if (ret.isEmpty) return "";
-    return "<br/><br/>${this.htmlTitleHP()} is feeling ${turnArrayIntoHumanSentence(ret)} than normal. ";
-  }
-
-
-  num getHighestRelationshipValue() {
-    Relationship bestRelationshipSoFar = this.relationships[0];
-    for (num i = 1; i < this.relationships.length; i++) {
-      Relationship r = this.relationships[i];
-      if (r.value > bestRelationshipSoFar.value) {
-        bestRelationshipSoFar = r;
-      }
-    }
-    return bestRelationshipSoFar.value;
-  }
 
   GameEntity getBestFriend() {
     Relationship bestRelationshipSoFar = this.relationships[0];
@@ -1367,60 +680,6 @@ class Player extends GameEntity{
     return bestRelationshipSoFar.target;
   }
 
-  GameEntity getWorstEnemy() {
-    Relationship worstRelationshipSoFar = this.relationships[0];
-    for (num i = 1; i < this.relationships.length; i++) {
-      Relationship r = this.relationships[i];
-      if (r != null && r.value < worstRelationshipSoFar.value) {
-        worstRelationshipSoFar = r;
-      }
-    }
-    return worstRelationshipSoFar.target;
-  }
-
-  GameEntity getBestFriendFromList(List<GameEntity>potentialFriends, [String debugMessage = null]) {
-    Relationship bestRelationshipSoFar = this.relationships[0];
-    for (num i = 0; i < potentialFriends.length; i++) {
-      GameEntity p = potentialFriends[i];
-      if (p != this) {
-        Relationship r = this.getRelationshipWith(p);
-        if (r == null) {
-          ////print("Couldn't find relationships between " + this.chatHandle + " and " + p.chatHandle);
-          ////print(debugMessage);
-          ////print(potentialFriends);
-          ////print(this);
-        }
-        if (r != null && r.value > bestRelationshipSoFar.value) {
-          bestRelationshipSoFar = r;
-        }
-      }
-    }
-    //can't be my best friend if they're an enemy
-    //I SHOULD NOT HAVE A RELATIONSHIP WITH MYSELF. but if i do, don't return it.;
-    if (bestRelationshipSoFar.value > 0 && bestRelationshipSoFar.target != this) {
-      return bestRelationshipSoFar.target;
-    }
-    return null;
-  }
-
-  GameEntity getWorstEnemyFromList(List<GameEntity> potentialFriends) {
-    Relationship worstRelationshipSoFar = this.relationships[0];
-    for (num i = 0; i < potentialFriends.length; i++) {
-      GameEntity p = potentialFriends[i];
-      if (p != this) {
-        Relationship r = this.getRelationshipWith(potentialFriends[i]);
-        if (r != null && r.value < worstRelationshipSoFar.value) {
-          worstRelationshipSoFar = r;
-        }
-      }
-    }
-    //can't be my worst enemy if they're a friend.
-    //I SHOULD NOT HAVE A RELATIONSHIP WITH MYSELF. but if i do, don't return it.;
-    if (worstRelationshipSoFar.value < 0 && worstRelationshipSoFar.target != this) {
-      return worstRelationshipSoFar.target;
-    }
-    return null;
-  }
 
   void decideTroll() {
     //session.logger.info("Session of type: ${this.session.getSessionType()}");
@@ -1456,26 +715,6 @@ class Player extends GameEntity{
       this.myLusus = session.rand.pickFrom(PotentialSprite.lusus_objects);
       this.myLusus.session = session;
     }
-  }
-
-  List<Player> getFriends() {
-    List<Player> ret = <Player>[];
-    for (num i = 0; i < this.relationships.length; i++) {
-      if (this.relationships[i].value > 0) {
-        ret.add(this.relationships[i].target);
-      }
-    }
-    return ret;
-  }
-
-  List<GameEntity> getEnemies() {
-    List<GameEntity> ret = <GameEntity>[];
-    for (num i = 0; i < this.relationships.length; i++) {
-      if (this.relationships[i].value < 0) {
-        ret.add(this.relationships[i].target);
-      }
-    }
-    return ret;
   }
 
   bool highInit() {
@@ -1561,18 +800,6 @@ class Player extends GameEntity{
     }
   }
 
-  Fraymotif getNewFraymotif(GameEntity helper) {
-    Fraymotif f;
-    if (this.godTier) {
-      f = this.session.fraymotifCreator.makeFraymotifForPlayerWithFriends(this, helper, 3);
-    } else if (this.denizenDefeated) {
-      f = this.session.fraymotifCreator.makeFraymotifForPlayerWithFriends(this, helper, 2);
-    } else {
-      f = this.session.fraymotifCreator.makeFraymotifForPlayerWithFriends(this, helper, 1);
-    }
-    this.fraymotifs.add(f);
-    return f;
-  }
 
   void initializePower() {
     this.setStat(Stats.POWER, 10);
@@ -1618,28 +845,6 @@ class Player extends GameEntity{
     //String data = utf8.decode(builder.toBuffer().asUint8List());
     return base64Url.encode(builder.toBuffer().asUint8List());
     //return Uri.encodeComponent(data).replaceAll(new RegExp(r"""#""", multiLine:true), '%23').replaceAll(new RegExp(r"""&""", multiLine:true), '%26');
-  }
-
-  void readInExtensionsString(ByteReader reader) {
-    //;
-    //just inverse of encoding process.
-    int numFeatures = reader.readExpGolomb(); //assume features are in set order. and that if a given feature is variable it is ALWAYS variable.
-    //;
-    if (numFeatures > 0) {
-      int cid = reader.readByte();
-      //;
-      this.class_name = intToClassName(cid);
-    }
-    if (numFeatures > 1) {
-      int i = reader.readByte();
-      //;
-
-      this.aspect = Aspects.get(i);
-      //;
-    }
-
-
-    //as i add more things, add more lines. ALWAYS in same order, but not all features all the time.
   }
 
   JSONObject toJSON() {
@@ -1787,12 +992,6 @@ class Player extends GameEntity{
     }
   }
 
-  void resetFlags() {
-    deriveLand = true;
-    scenesToAdd.clear();
-    deriveChatHandle = true;
-    addedSerializableScenes = false;
-  }
 
   void initializeDerivedStuff() {
     populateInventory();
@@ -1890,113 +1089,6 @@ class Player extends GameEntity{
     return godTier || isDreamSelf || land == null || land.firstCompleted || (aspect.isThisMe(Aspects.BREATH) && hasPowers()) ;
   }
 
-  bool canGodTierSomeWay() {
-    if(isDreamSelf) return hasMoon();
-    return hasLand();
-  }
-
-  bool hasLand() {
-    return land != null && !land.dead;
-  }
-
-  bool hasMoon() {
-    return moon != null && !moon.dead;
-  }
-
-  ///not static because who can help me varies based on who i am (space is knight, for example)
-  ///no longer inside a scene because multiple scenes need a consistent result from this
-  Player findHelper(List<Player> players) {
-    Player helper;
-    if(session.mutator.lightField) return session.mutator.inSpotLight;
-    //space player can ONLY be helped by knight, and knight prioritizes this
-    if(aspect.isThisMe(Aspects.SPACE)){//this shit is so illegal
-      helper = findClassPlayer(players, SBURBClassManager.KNIGHT);
-      //can help others 100% of the time if foreign player. you can like, fly and shit with your end game items.
-      if(helper != null && helper.id != this.id && (helper.canHelp())){ //a knight of space can't help themselves.
-        ////;
-        //;
-        return helper;
-      }else{
-        helper = null; //clear the helper out or knights of space are gonna be op as fuck. they were storing that if there were no sorted choices.
-        return null;
-      }
-    }
-    //time players often partner up with themselves but not if they have a good friend
-    bool bestFriend = false;
-    Player friend = getBestFriend();
-    Relationship r = getRelationshipWith(friend);
-    if(r != null && r.value > Relationship.CRUSHVALUE/2) {
-      bestFriend = true;
-    }
-    if(aspect.isThisMe(Aspects.TIME) && !bestFriend && rand.nextDouble() > .5){
-      ////;
-      //;
-
-      return this;
-    }
-    //;
-    //players are naturally sorted by mobility
-    List<Player> sortedChoices = new List<Player>.from(players)..sort(Stats.MOBILITY.sorter);
-    for(Player p in sortedChoices) {
-      if(rand.nextDouble() > 0.75 && p.id != this.id) {
-        //space players are stuck on their land till they get their frog together.
-        if((p.aspect != Aspects.SPACE || p.landLevel > session.goodFrogLevel)  && p.canHelp()) {
-          helper = p;
-          //;
-        }
-      }else if(((p.class_name == SBURBClassManager.PAGE || p.aspect.isThisMe(Aspects.BLOOD)) && p.id != this.id) && p.canHelp()) { //these are GUARANTEED to have helpers. not part of a big stupid if though in case i want to make it just higher odds l8r
-        helper = p;
-        // ;
-      }
-    }
-    //;
-
-    //could be null, not 100% chance of helper
-    ////;
-    return helper;
-  }
-
-  List<AssociatedStat> getOnlyAspectAssociatedStats() {
-    List<AssociatedStat> ret = <AssociatedStat>[];
-    for (num i = 0; i < this.associatedStats.length; i++) {
-      if (this.associatedStats[i].isFromAspect) ret.add(this.associatedStats[i]);
-    }
-    return ret;
-  }
-
-  List<AssociatedStat> getOnlyPositiveAspectAssociatedStats() {
-    List<AssociatedStat> ret = <AssociatedStat>[];
-    for (num i = 0; i < this.associatedStats.length; i++) {
-      if (this.associatedStats[i].isFromAspect && this.associatedStats[i].multiplier > 0) ret.add(this.associatedStats[i]);
-    }
-    return ret;
-  }
-
-  List<AssociatedStat> getOnlyNegativeAspectAssociatedStats() {
-    List<AssociatedStat> ret = <AssociatedStat>[];
-    for (num i = 0; i < this.associatedStats.length; i++) {
-      if (this.associatedStats[i].isFromAspect && this.associatedStats[i].multiplier < 0) ret.add(this.associatedStats[i]);
-    }
-    return ret;
-  }
-
-  String voidDescription() {
-    for (num i = 0; i < this.associatedStats.length; i++) {
-      AssociatedStat stat = this.associatedStats[i];
-      if (stat.multiplier >= 3) return "SO ${stat.stat.emphaticDescriptor(this).toUpperCase()}";
-    }
-    return "SO BLAND";
-  }
-
-  void initializeAssociatedStats() {
-    for (num i = 0; i < this.associatedStats.length; i++) {
-      if (this.highInit()) {
-        this.modifyAssociatedStat(10, this.associatedStats[i]);
-      } else {
-        this.modifyAssociatedStat(-10, this.associatedStats[i]);
-      }
-    }
-  }
 
   @override
   void modifyAssociatedStat(num modValue, AssociatedStat stat) {
@@ -2160,60 +1252,5 @@ class Player extends GameEntity{
     }
     return ret;
   }
-
-
-  //TODO has specific 'doomed time clone' stuff in it, like randomizing state
-  static Player makeDoomedSnapshot(Player doomedPlayer) {
-    Session session = doomedPlayer.session;
-    Player timeClone = Player.makeRenderingSnapshot(doomedPlayer,false);
-    timeClone.dead = false;
-    timeClone.ectoBiologicalSource = -612; //if they somehow become players, you dn't make babies of them.
-    timeClone.prophecy = ProphecyState.ACTIVE;
-    timeClone.setStat(Stats.CURRENT_HEALTH, doomedPlayer.getStat(Stats.HEALTH)); //heal
-    timeClone.doomed = true;
-    //from a different timeline, things went differently.
-    double r = doomedPlayer.rand.nextDouble();
-    timeClone.setStat(Stats.POWER, doomedPlayer.session.rand.nextDouble() * 80 + 10);
-    if (r > 0.9) {
-      timeClone.robot = true;
-      timeClone.hairColor = getRandomGreyColor();
-    } else if (r > .8) {
-      timeClone.godTier = !timeClone.godTier;
-      if (timeClone.godTier) {
-        timeClone.setStat(Stats.POWER, 200); //act like a god, damn it.
-      }
-    } else if (r > .6) {
-      timeClone.isDreamSelf = !timeClone.isDreamSelf;
-    } else if (r > .4) {
-      timeClone.grimDark = doomedPlayer.session.rand.nextIntRange(0, 4);
-      timeClone.addStat(Stats.POWER, 50 * timeClone.grimDark);
-    } else if (r > .2) {
-      timeClone.murderMode = !timeClone.murderMode;
-    }
-
-    if (timeClone.grimDark > 3) {
-      Fraymotif f = new Fraymotif(Zalgo.generate("The Broodfester Tongues"), 3);
-      f.effects.add(new FraymotifEffect(Stats.POWER, 3, true));
-      f.effects.add(new FraymotifEffect(Stats.POWER, 0, false));
-      f.desc = " They are stubborn throes. ";
-      timeClone.fraymotifs.add(f);
-    }
-
-    if (timeClone.godTier) {
-      Fraymotif f = session.fraymotifCreator.makeFraymotif(doomedPlayer.rand, <Player>[doomedPlayer], 3); //first god tier fraymotif
-      timeClone.fraymotifs.add(f);
-    }
-
-    if (timeClone.getStat(Stats.POWER) > 50) {
-      Fraymotif f = session.fraymotifCreator.makeFraymotif(doomedPlayer.rand, <Player>[doomedPlayer], 2); //probably beat denizen at least
-      timeClone.fraymotifs.add(f);
-    }
-
-    Fraymotif f = session.fraymotifCreator.makeFraymotif(doomedPlayer.rand, <Player>[doomedPlayer], 1); //at least did first quest
-    timeClone.fraymotifs.add(f);
-    timeClone.renderSelf("doomed time clone");
-
-    return timeClone;
-  }
-
+  
 }

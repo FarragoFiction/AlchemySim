@@ -107,35 +107,6 @@ Player blankPlayerNoDerived(Session session) {
 }
 
 
-Player randomPlayerNoDerived(Session session, SBURBClass c, Aspect a) {
-  GameEntity k = session.rand.pickFrom(PotentialSprite.prototyping_objects);
-  k.session = session;
-
-
-  bool gd = false;
-
-  Moon m = session.rand.pickFrom(session.moons);
-  Player p = new Player(session, c, a, k, m, gd);
-  p.decideTroll();
-  p.interest1 = InterestManager.getRandomInterest(session.rand);
-  p.interest2 = InterestManager.getRandomInterest(session.rand);
-  p.baby = session.rand.nextIntRange(1, 3);
-
-
-  p.hair = session.rand.nextIntRange(1, Player.maxHairNumber);
-  //hair color in decideTroll.
-  p.leftHorn = session.rand.nextIntRange(1, Player.maxHornNumber);
-  p.rightHorn = p.leftHorn;
-  if (session.rand.nextDouble() > .7) { //preference for symmetry
-    p.rightHorn = session.rand.nextIntRange(1, Player.maxHornNumber);
-  }
-  p.initializeStats();
-  p.initializeSprite();
-
-
-  return p;
-}
-
 
 Player randomPlayerWithClaspect(Session session, SBURBClass c, Aspect a, [Moon m = null]) {
   ////;
