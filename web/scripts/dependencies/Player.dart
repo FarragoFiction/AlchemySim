@@ -726,22 +726,6 @@ class Player extends GameEntity{
     }
   }
 
-  void initSpriteCanvas() {
-    if(canvas != null) return;
-    // ;
-    canvas = new CanvasElement(width: 400, height: 300);
-    renderSelf("initSpriteCanvas");
-  }
-
-  void renderSelf(String caller) {
-    if(Drawing.checkSimMode()) return;
-    if (canvas == null) this.initSpriteCanvas();
-    this.clearSelf();
-    //TODO someday tackle the headache that would be needed to make all of rendering async
-    //await PlayerSpriteHandler.drawSpriteFromScratch(canvas, this);
-
-    Drawing.drawSpriteFromScratch(canvas, this);
-  }
 
   void clearSelf() {
     canvas.context2D.clearRect(0, 0, canvas.width, canvas.height);

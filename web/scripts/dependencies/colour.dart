@@ -2,7 +2,6 @@ import 'dart:html';
 import 'dart:math';
 
 class Colour {
-  static const double DEFAULT_GAMMA = 2.2;
   static const List<double> REFERENCE_WHITE = const <double>[095.047, 100.000, 108.883];
   static const double XYZ_EPSILON = 0.008856;
   static const double XYZ_KAPPA = 903.3;

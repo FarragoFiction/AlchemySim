@@ -17,7 +17,6 @@ enum ProphecyState {
 class GameEntity extends Object with StatOwner   {
   //for players it effects god tier revive, for others it works like life gnosis
   //used to judge heroic deaths
-  GameEntity myKiller; //who killed you last? (even if you are alive now)
   bool unconditionallyImmortal = false;
   //only a few big bads can't even be fought in the first place
   bool canStrife = true;
@@ -111,7 +110,6 @@ class GameEntity extends Object with StatOwner   {
 
   num id;
   bool doomed = false; //if you are doomed, no matter what you are, you are likely to die.
-  List<Player> doomedTimeClones = <Player>[]; //help fight the final boss(es).
   String causeOfDeath = ""; //fill in every time you die. only matters if you're dead at end
 
   //npc traits: violent, lucky, charming, cunning
@@ -302,7 +300,6 @@ class GameEntity extends Object with StatOwner   {
     clonege.extraTitle = extraTitle;
     clonege.associatedStats = associatedStats; //most players will have a 2x, a 1x and a -1x stat.
     clonege.doomed = doomed; //if you are doomed, no matter what you are, you are likely to die.
-    clonege.doomedTimeClones = doomedTimeClones; //TODO should these be cloned? help fight the final boss(es).
     clonege.causeOfDeath = causeOfDeath; //fill in every time you die. only matters if you're dead at end
     clonege.sylladex = new Sylladex(sylladex.owner, sylladex.inventory);
   }
@@ -684,11 +681,6 @@ class GameEntity extends Object with StatOwner   {
     return "$ret $name";
   }
 
-  void makeAlive() {
-    this.dead = false;
-    this.heal();
-  }
-
 
   Relationship getRelationshipWith(GameEntity target) {
     //stub for boss fights where an asshole absconds.
@@ -700,48 +692,6 @@ class GameEntity extends Object with StatOwner   {
     return null;
   }
 
-  //a standard RPG trope, even if they are your friend
-  void lootCorpse(GameEntity corpse) {
-    if(corpse == null) return;
-    //so no concurrent mods (wouldu try to loop on items even as it removes items)
-    List<Item> tmp = new List<Item>.from(corpse.sylladex.inventory);
-    if(corpse != this) sylladex.addAll(tmp);
-    grist += corpse.grist;
-    corpse.grist = 0;
-  }
-
-  //generally called from makeDead
-  //if  you kill someone while being too stronk
-  //the players try to stop you
-  String makeBigBad() {
-    String reason = "";
-    if(unconditionallyImmortal) {
-      //turning this off cuz it happens too much
-      // reason = " because if they don't stop them, who will?";
-      //villain = true;
-    }else if(landKillCount >=1 ) {
-      reason = "because you can't just go around blowing up planets!";
-      villain = true;
-    }else if(playerKillCount > 4 ) {
-      //players count 3 x a s much as an npc
-      reason = "because they have killed so many already.";
-      villain = true;
-    }else if(npcKillCount > 12 ) {
-      reason = "because npc victims or not, the ${htmlTitle()} is on a murderous rampage. ";
-      villain = true;
-    }else if(getStat(Stats.POWER) > 13000 * Stats.POWER.average(session.players) && session.players.length > 2 ) {
-      //turning this off cuz its actually a bit op
-      //reason = "because no one being should have all that power and use it to kill."; //hums along
-      //villain = true;
-    }
-
-    if(!reason.isEmpty) {
-      return "The Players vow revenge against the killer, ${htmlTitle()} $reason";
-    }
-    return "";
-  }
-
-
   //takes in a stat name we want to use. for example, use only min luck to avoid bad events.
   double rollForLuck([Stat stat]) {
     if (stat == null) {
@@ -752,18 +702,6 @@ class GameEntity extends Object with StatOwner   {
     }
   }
 
-
-  List<Relationship> getHearts() {
-    return <Relationship>[];
-  }
-
-  List<Relationship> getDiamonds() {
-    return <Relationship>[];
-  }
-
-  void processCardFor() {
-    //does nothing, offspring will override if they need to
-  }
 
   static int generateID() {
     GameEntity._nextID += 1;
@@ -789,7 +727,6 @@ class AssociatedStat {
   double multiplier;
   bool isFromAspect;
 
-  AssociatedStat(Stat this.stat, this.multiplier, bool this.isFromAspect) {}
 
   @override
   String toString() => "[$stat x $multiplier${this.isFromAspect ? " (from Aspect)" : ""}]";
