@@ -1245,5 +1245,5 @@ abstract class Drawing {
   static CanvasElement getBufferCanvas(int width, int height) {
     return new CanvasElement(width: width, height: height);
   }
-  
+
 }
