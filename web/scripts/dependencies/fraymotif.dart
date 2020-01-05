@@ -4,6 +4,9 @@ import 'dart:convert';
 import "dart:html";
 import 'lz-string.dart';
 
+import 'JSONObject.dart';
+
+
 
 /*
 stat effects from a fraymotif are temporary. wear off after battle.
@@ -21,8 +24,6 @@ class Fraymotif {
   static String FRAYMOTIF  = "FRAYMOTIF";
   String get labelPattern => ":___ ";
 
-
-  FraymotifForm form;
 
   List<Aspect> aspects; //expect to be an array
   String name;
@@ -75,12 +76,6 @@ class Fraymotif {
     //print("raw json is $rawJSON");
     JSONObject json = new JSONObject.fromJSONString(rawJSON);
     copyFromJSON(json);
-  }
-
-  void renderForm(Element container) {
-    print ("render form for scene");
-    form = new FraymotifForm(this, container);
-    form.drawForm();
   }
 
   void copyFromJSON(JSONObject json) {
@@ -624,164 +619,3 @@ class FraymotifCreator {
 }
 
 
-class FraymotifForm {
-  Element container;
-  TextInputElement nameElement;
-  TextInputElement tierElement;
-  TextAreaElement descElement;
-  Element effectsSection;
-
-
-  TextAreaElement dataBox;
-  Fraymotif owner;
-
-  FraymotifForm(Fraymotif this.owner, Element parentContainer) {
-    container = new DivElement();
-    container.classes.add("SceneDiv");
-
-    parentContainer.append(container);
-
-  }
-
-  void drawForm() {
-    print("drawing new fraymotif form");
-    drawDataBox();
-    drawName();
-    drawTier();
-    drawDesc();
-    drawAddEffects();
-    drawExistingEffects();
-  }
-
-  void syncFormToOwner() {
-    print("syncing form to scene");
-    nameElement.value = owner.name;
-    tierElement.value = "${owner.tier}";
-    descElement.value = owner.desc;
-
-    for (FraymotifEffect s in owner.effects) {
-      s.renderForm(effectsSection);
-    }
-    print("syncing data box to scene");
-    syncDataBoxToOwner();
-  }
-
-  void syncDataBoxToOwner() {
-    print("trying to sync data box, owner is ${owner}");
-    dataBox.value = owner.toDataString();
-  }
-
-  void drawDataBox() {
-    print("drawing data box");
-    dataBox = new TextAreaElement();
-    dataBox.value = owner.toDataString();
-    dataBox.cols = 60;
-    dataBox.rows = 10;
-    dataBox.onChange.listen((e) {
-      print("syncing template to data box");
-      try {
-        List<FraymotifEffect> effectsBackup = new List.from(owner.effects);
-
-        owner.copyFromDataString(dataBox.value);
-        //remove the effects from the form
-        for(FraymotifEffect effect in effectsBackup) {
-          effect.form.container.remove();
-        }
-        print("loaded scene");
-        syncFormToOwner();
-        print("synced form to scene");
-      }catch(e, trace) {
-        window.alert("something went wrong! $e, $trace");
-      }
-    });
-    container.append(dataBox);
-  }
-
-  void drawName() {
-    DivElement subContainer = new DivElement();
-    LabelElement nameLabel = new LabelElement();
-    nameLabel.text = "Name:";
-    nameElement = new TextInputElement();
-    nameElement.value = owner.name;
-    subContainer.append(nameLabel);
-    subContainer.append(nameElement);
-    container.append(subContainer);
-
-    nameElement.onInput.listen((e) {
-      owner.name = nameElement.value;
-      syncDataBoxToOwner();
-    });
-  }
-
-  void drawTier() {
-    DivElement subContainer = new DivElement();
-    LabelElement nameLabel = new LabelElement();
-    nameLabel.text = "Tier (1-3 is normal):";
-    tierElement = new TextInputElement();
-    tierElement.value = "${owner.tier}";
-    subContainer.append(nameLabel);
-    subContainer.append(tierElement);
-    container.append(subContainer);
-
-    tierElement.onInput.listen((e) {
-      owner.tier = int.parse(tierElement.value);
-      syncDataBoxToOwner();
-    });
-  }
-
-  void drawDesc() {
-    descElement = new TextAreaElement();
-    descElement.value = owner.desc;
-    descElement.cols = 60;
-    descElement.rows = 10;
-    descElement.onInput.listen((e) {
-      owner.desc = descElement.value;
-      syncDataBoxToOwner();
-    });
-
-    DivElement buttonDiv = new DivElement();
-
-    List<String> keyWords = <String>[Fraymotif.OWNER, Fraymotif.CASTERS, Fraymotif.ALLIES, Fraymotif.ENEMY, Fraymotif.ENEMIES, Fraymotif.FRAYMOTIF];
-
-    for(String word in keyWords) {
-      ButtonElement button = new ButtonElement();
-      button.text = "Append $word tag";
-      button.onClick.listen((e) {
-        descElement.value =
-        "${descElement.value} ${word}";
-        owner.desc = descElement.value;
-        syncDataBoxToOwner();
-      });
-      buttonDiv.append(button);
-    }
-
-
-    container.append(descElement);
-    container.append(buttonDiv);
-  }
-
-  void drawExistingEffects() {
-    effectsSection = new DivElement();
-    container.append(effectsSection);
-    for(FraymotifEffect e in owner.effects) {
-      e.renderForm(effectsSection);
-    }
-  }
-
-  void drawAddEffects() {
-//trigger conditions know how to add their own damn selves
-    DivElement tmp = new DivElement();
-    tmp.classes.add("filterSection");
-    ButtonElement button = new ButtonElement()..text = "Add Effect";
-    tmp.append(button);
-    container.append(tmp);
-    button.onClick.listen((Event e) {
-      FraymotifEffect effect = new FraymotifEffect(Stats.POWER, 0,true);
-      //needed for form, won't be needed in a live simulation
-      effect.fraymotif = owner;
-      owner.effects.add(effect);
-      effect.renderForm(effectsSection);
-    });
-
-  }
-}

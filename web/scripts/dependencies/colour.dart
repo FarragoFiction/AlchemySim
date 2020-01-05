@@ -32,21 +32,6 @@ class Colour {
     this.alpha = alpha.clamp(0,0xFF);
   }
 
-  factory Colour.from(Colour other) {
-    Colour col = new Colour(other.red, other.green, other.blue, other.alpha);
-
-    if (!other._hsv_dirty) {
-      col.setHSV(other._hue, other._saturation, other._value);
-      col._hsv_dirty = false;
-    }
-
-    if (!other._lab_dirty) {
-      col.setLAB(other._lab_lightness, other._lab_a, other._lab_b);
-      col._lab_dirty = false;
-    }
-
-    return col;
-  }
 
   factory Colour.double(double red, double green, double blue, [double alpha = 1.0]) {
     return new Colour()
@@ -79,18 +64,6 @@ class Colour {
 
   factory Colour.fromStyleString(String hex) {
     return new Colour.fromHexString(hex.substring(1));
-  }
-
-  factory Colour.hsv(double h, double s, double v) {
-    return new Colour()..setHSV(h, s, v);
-  }
-
-  factory Colour.lab(double l, double a, double b) {
-    return new Colour()..setLAB(l, a, b);
-  }
-
-  factory Colour.labScaled(double l, double a, double b) {
-    return new Colour()..setLABScaled(l, a, b);
   }
 
   // Getters/setters ###################################################################################
