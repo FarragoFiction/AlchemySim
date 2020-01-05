@@ -27,9 +27,7 @@ class GameEntity extends Object with StatOwner   {
   int playerKillCount = 0;
   bool addedSerializableScenes = false;
   int npcKillCount = 0;
-  bool usedMiles = false;
   int landKillCount  = 0;
-  int moonKillCount  = 0;
   bool everCrowned = false;
   String labelPattern = ":___ ";
   //big bads and etc can set this
@@ -48,9 +46,6 @@ class GameEntity extends Object with StatOwner   {
 
   List<String> serializableSceneStrings = new List<String>();
 
-  //mostly for npcs, might not be the best way to do it but it's what i'm gonna do for now.
-  //x starts flipping out about TAB soda
-  List<String> distractions = new List<String>();
   //AW wrote up a bunch of these for carapaces
   String description = "";
 
@@ -103,7 +98,6 @@ class GameEntity extends Object with StatOwner   {
 
   bool dead = false;
   String causeOfDrain = null; //if it's ever not null they will be sideways
-  bool exiled = false;
   List<GhostPact> ghostPacts = <GhostPact>[]; //list of two element array [Ghost, enablingAspect]
   bool corrupted = false; //players are corrupted at level 4. will be easier than always checking grimDark level
   List<Fraymotif> fraymotifs = <Fraymotif>[];
@@ -129,58 +123,8 @@ class GameEntity extends Object with StatOwner   {
     return ret;
   }
 
-  bool get violent {
-    if(getStat(Stats.SANITY) <0 && getStat(Stats.RELATIONSHIPS)<0) return true;
-    return false;
-  }
-
-  bool get lucky {
-    if(getStat(Stats.MAX_LUCK) >0 && getStat(Stats.MIN_LUCK) >0) return true;
-    return false;
-  }
-
-  bool get charming {
-    if(getStat(Stats.ALCHEMY) >0 && getStat(Stats.RELATIONSHIPS)>0) return true;
-    return false;
-  }
-
-  bool get cunning {
-    if(getStat(Stats.FREE_WILL) >0 && getStat(Stats.MOBILITY)>0) return true;
-    return false;
-  }
-
-
-
-  //useful for initing npcs, probably won't use for players.
-
-  //hateful and crazy
-  void makeViolent([int base = 100]) {
-    setStat(Stats.SANITY, -1* base);
-    setStat(Stats.RELATIONSHIPS, -1* base);
-  }
-
-  //lucky
-  void makeLucky([int base = 100]) {
-    setStat(Stats.MIN_LUCK, base);
-    setStat(Stats.MAX_LUCK, base);
-  }
-
-  //creative and friendly
-  void makeCharming([int base = 100]) {
-    setStat(Stats.ALCHEMY, base);
-    setStat(Stats.RELATIONSHIPS, base);
-  }
-
-  //determined and fast
-  void makeCunning([int base = 100]) {
-    setStat(Stats.FREE_WILL, base);
-    setStat(Stats.MOBILITY, base);
-  }
-
   //just returns first, hoarding them does nothing.
-  MagicalItem get crowned
-
-  {
+  MagicalItem get crowned {
     for(Item item in sylladex) {
       if(item is Ring || item is Scepter) {
         return item;
@@ -188,19 +132,8 @@ class GameEntity extends Object with StatOwner   {
     }
   }
 
-  Ring get ring
 
-  {
-    for(Item item in sylladex) {
-      if(item is Ring) {
-        return item;
-      }
-    }
-  }
-
-  Scepter get scepter
-
-  {
+  Scepter get scepter {
     for(Item item in sylladex) {
       if(item is Scepter) {
         return item;
@@ -326,21 +259,6 @@ class GameEntity extends Object with StatOwner   {
     _nextID = val;
   }
 
-  String get debugStatsRaw {
-    String ret = "";
-    for(Stat s in stats) {
-      ret += "${s.name}: ${stats.getBase(s).round()},";
-    }
-    return ret;
-  }
-
-  String get debugStats {
-    String ret = "";
-    for(Stat s in stats) {
-      ret += "${s.name}: ${getStat(s).round()},";
-    }
-    return ret;
-  }
 
   Stat get highestStat {
     Stat ret = stats.first;
@@ -354,13 +272,6 @@ class GameEntity extends Object with StatOwner   {
     return ret;
   }
 
-  Stat get lowestStat {
-    Stat ret = stats.first;
-    for(Stat s in stats) {
-      if(stats.getBase(s)/s.coefficient < stats.getBase(ret)/s.coefficient) ret = s;
-    }
-    return ret;
-  }
 
   //TODO grab out every method that current gameEntity, Player and PlayerSnapshot are required to have.
   //TODO make sure Player's @overide them.
@@ -376,40 +287,6 @@ class GameEntity extends Object with StatOwner   {
     return new ProphecyStatHolder<GameEntity>(this);
   }
 
-  void addPrototyping(GameEntity object) {
-    //session.logger.info("adding prototyping with fraymotifs ${object.fraymotifs} to ${this.fraymotifs} ");
-    this.name = "${object.name}${this.name}"; //sprite becomes puppetsprite.
-    this.fraymotifs.addAll(object.fraymotifs);
-    if (object.fraymotifs.isEmpty) {
-      Fraymotif f = new Fraymotif("${object.name}Sprite Beam!", 1);
-      f.effects.add(new FraymotifEffect(Stats.POWER, 2, true)); //do damage
-      f.effects.add(new FraymotifEffect(Stats.HEALTH, 1, true)); //heal
-      f.desc = " An appropriately themed beam of light damages enemies and heals allies. ";
-      this.fraymotifs.add(f);
-    }
-    this.corrupted = object.corrupted;
-    if (this is Sprite && object is PotentialSprite) {
-      Sprite s = this;
-      PotentialSprite ps = object;
-      s.helpfulness = ps.helpfulness; //completely overridden.
-      s.helpPhrase = ps.helpPhrase;
-      s.grist += ps.grist;
-      s.lusus = ps.lusus;
-      s.illegal = ps.illegal;
-      s.player = ps.player;
-    }
-    for (Stat key in object.stats) {
-      addStat(key, object.stats.getBase(key)); //add your stats to my stas.
-    }
-  }
-
-
-  //handles cloning generic stuff important because it's how a PLayer becomes a GameEntity (such as a PLayerSprite)
-  GameEntity clone () {
-    GameEntity clonege = new GameEntity(name, session);
-    copyStatsTo(clonege);
-    return clonege;
-  }
 
   void copyStatsTo(GameEntity clonege) {
     clonege.stats = this; // copies the stats via StatOwner's stats setter! (also buffs)
@@ -430,320 +307,6 @@ class GameEntity extends Object with StatOwner   {
     clonege.sylladex = new Sylladex(sylladex.owner, sylladex.inventory);
   }
 
-  //as each type of entity gets renderable, override this.
-  bool renderable() {
-    return false;
-  }
-
-
-
-  String checkDiedInAStrife(List<Team> enemyTeams) {
-    if (getStat(Stats.CURRENT_HEALTH) <= 0) {
-      //session.logger.info("${title()} died in a strife, hp is ${Stats.CURRENT_HEALTH}");
-
-      //TODO check for jack, king
-      GameEntity jack = Team.findJackInTeams(enemyTeams);
-      GameEntity king = Team.findKingInTeams(enemyTeams);
-      String causeOfDeath = "fighting in a strife against ${Team.getTeamsNames(enemyTeams)}";
-      GameEntity killer;
-      if (jack != null) {
-        causeOfDeath = "after being shown too many stabs from Jack";
-        killer = jack;
-      } else if (king != null) {
-        causeOfDeath = "fighting the Black King";
-        killer = king;
-      }
-
-      if(killer == null) {
-        Team enemies = enemyTeams[0];
-        List<GameEntity> living = findLiving(enemies.members);
-        living.sort(Stats.MOBILITY.sorter);
-        if(living.isNotEmpty) killer = living[0]; //fastest member gets the loot
-      }
-      return "${makeDead(causeOfDeath, killer)}";
-    }
-    return "";
-  }
-
-  void resetFraymotifs() {
-    if(!session.mutator.rageField) {
-      this.stats.onCombatEnd(); //rage just keeps going.
-    }
-    for (num i = 0; i < this.fraymotifs.length; i++) {
-      this.fraymotifs[i].usable = true;
-    }
-
-    if(crowned != null) {
-      crowned.resetFraymotifs();
-    }
-  }
-
-  bool friendsWith(GameEntity other) {
-    if(other == null) return false;
-    Relationship r = getRelationshipWith(other);
-    if(r == null) return false;
-    return r.value > 0;
-  }
-
-  //any subclass can choose to do things differently. for now, this is default.
-  //so yes, npcs can have ghost attacks.
-  //this won't be called if I CAN'T take a turn because i participated in fraymotif
-  void takeTurn(Element div, Team mySide, List<Team> enemyTeams) {
-    if (usedFraymotifThisTurn) {
-      //session.logger.info("${title()} already participated in a fraymotif this turn");
-      return; //already did an attack.
-    }
-    if (mySide.absconded.contains(this)) {
-      //session.logger.info("${title()} already absconded, can't take a turn");
-      return;
-    }
-    //if still dead, return, can't do anything.
-    if (dead) {
-      reviveViaGhostPact(div);
-      //whether it works or not, return. you can't revive AND do other stuff.
-      //session.logger.info("${title()} is too dead to take a turn");
-      return;
-    }
-    appendHtml(div, describeBuffs());
-    if (checkAbscond(div, mySide, enemyTeams)) return; //nice abscond, bro
-
-    //pick a team to target.  if cant find target, return
-    Team targetTeam = pickATeamToTarget(enemyTeams);
-    if (targetTeam == null) return; //nobody to fight.
-    //pick a member of the team to extra target. ig player and light, even if corpse
-    GameEntity target = pickATarget(targetTeam.getLivingMinusAbsconded());
-    if (target == null) return; //nobody to attack.
-    //try to use fraymotif
-    if (!useFraymotif(div, mySide, target, targetTeam)) {
-      aggrieve(div, target);
-    }
-    //last thing you do is die.
-    mySide.checkForAPulse(div, enemyTeams);
-    List<Team> allTeams = new List<Team>.from(enemyTeams);
-    allTeams.add(mySide);
-    for (Team team in enemyTeams) {
-      team.checkForAPulse(div, team.getOtherTeams(allTeams));
-    }
-  }
-
-  bool useFraymotif(Element div, Team mySide, GameEntity target, Team targetTeam) {
-    List<GameEntity> living_enemies = targetTeam.getLivingMinusAbsconded();
-    List<GameEntity> living_allies = mySide.getLivingMinusAbsconded();
-    if (this.session.rand.nextDouble() > 0.5 && !(this is Player)) return false; //don't use them all at once, dunkass. unless you are a player. fraymotifs 4 lyfe
-    List<Fraymotif> usableFraymotifs = this.session.fraymotifCreator.getUsableFraymotifs(this, living_allies, living_enemies);
-    if (crowned != null) { //ring/scepter has fraymotifs, too.  (maybe shouldn't let humans get thefraymotifs but what the fuck ever. roxyc could do voidy shit.)
-      //jr from 9/25/18 says fuck no past jr, humans aren't allowed fryamotifs from teh rings/scepters.
-      if(this is Carapace || (this is Player && (this as Player).aspect.isThisMe(Aspects.SAUCE))){
-        usableFraymotifs.addAll(this.session.fraymotifCreator.getUsableFraymotifsMagicalItem(crowned, living_allies, living_enemies));
-      }
-    }
-    if (usableFraymotifs.isEmpty) return false;
-    num mine = getStat(Stats.SANITY);
-    num theirs = Stats.SANITY.average(living_enemies);
-    if (mine + 200 < theirs && this.session.rand.nextDouble() < 0.5) {
-      // ////session.logger.info("Too insane to use fraymotifs: ${htmlTitleHP()} against ${target.htmlTitleHP()} Mine: $mine Theirs: $theirs in session: ${this.session.session_id}");
-      appendHtml(div, " The ${htmlTitleHP()} wants to use a Fraymotif, but they are too crazy to focus. ");
-      return false;
-    }
-    mine = getStat(Stats.FREE_WILL);
-    theirs = Stats.FREE_WILL.average(living_enemies);
-    if (mine + 200 < theirs && this.session.rand.nextDouble() < 0.5) {
-      //////session.logger.info("Too controlled to use fraymotifs: ${htmlTitleHP()} against ${target.htmlTitleHP()} Mine: $mine Theirs: $theirs in session: ${this.session.session_id}");
-      appendHtml(div, " The ${htmlTitleHP()} wants to use a Fraymotif, but Fate dictates otherwise. ");
-      return false;
-    }
-
-    Fraymotif chosen = usableFraymotifs[0];
-    for (num i = 0; i < usableFraymotifs.length; i++) {
-      Fraymotif f = usableFraymotifs[i];
-      if (f.tier > chosen.tier) {
-        chosen = f; //more stronger is more better (refance)
-      } else if (f.tier == chosen.tier && f.aspects.length > chosen.aspects.length) {
-        chosen = f; //all else equal, prefer the one with more members.
-      }
-    }
-    appendHtml(div, "<Br><br>${chosen.useFraymotif(this, living_allies, target, living_enemies)}<br><Br>");
-    chosen.usable = false;
-    return true;
-  }
-
-  bool checkAbscond(Element div, Team mySide, List<Team> enemies) {
-    if (!mySide.canAbscond) return false; //can't abscond, bro
-    if (doomed) return false; //accept your fate.
-
-    if(2*getStat(Stats.MOBILITY) < Team.getTeamsStatTotal(enemies, Stats.MOBILITY)) return false; //not fast enough
-    if(2*getStat(Stats.MIN_LUCK) < Team.getTeamsStatTotal(enemies, Stats.MAX_LUCK)) return false; //not lucky enough enough
-    if(session.rand.nextBool()) return false; //its boring if its too consistent
-
-    List<GameEntity> whoINeedToProtect = mySide.getLivingMinusAbsconded();
-    num reasonsToLeave = 0;
-    num reasonsToStay = 2; //generally prefer to win fights.
-    reasonsToStay += getFriendsFromList(whoINeedToProtect).length;
-    List<Relationship> hearts = getHearts();
-    List<Relationship> diamonds = getDiamonds();
-    for (Relationship heart in hearts) {
-      if (whoINeedToProtect.contains(heart.target)) reasonsToStay += 1;
-    }
-
-    for (Relationship diamond in diamonds) {
-      if (whoINeedToProtect.contains(diamond.target)) reasonsToStay += 1;
-    }
-    reasonsToStay += getStat(Stats.POWER) / Team.getTeamsStatTotal(enemies, Stats.CURRENT_HEALTH); //i can take you.
-    reasonsToLeave += Team.getTeamsStatTotal(enemies, Stats.POWER) /getStat(Stats.CURRENT_HEALTH); //you can take me.
-    if (reasonsToLeave > reasonsToStay * 2) {
-      addStat(Stats.SANITY, -10);
-      flipOut("how terrifying ${Team.getTeamsNames(enemies)} were");
-      if (getStat(Stats.POWER) > Team.getTeamsStatAverage(enemies, Stats.MOBILITY)) {
-        //console.log(" player actually absconds: they had " + player.hp + " and enemy had " + enemy.getStat(Stats.POWER) + this.session.session_id)
-        appendHtml(div, "<br><img src = 'images/sceneIcons/abscond_icon.png'> The ${htmlTitleHP()} absconds right the fuck out of this fight.");
-        mySide.absconded.add(this);
-        mySide.remainingPlayersHateYou(div, this);
-        return true;
-      } else {
-        appendHtml(div, " The ${htmlTitleHP()} tries to absconds right the fuck out of this fight, but the ${Team.getTeamsNames(enemies)} blocks them. Can't abscond, bro. ");
-        return false;
-      }
-    } else if (reasonsToLeave > reasonsToStay) {
-      if (getStat(Stats.POWER) > Team.getTeamsStatAverage(enemies, Stats.MOBILITY)) {
-        //console.log(" player actually absconds: " + this.session.session_id)
-        appendHtml(div, "<br><img src = 'images/sceneIcons/abscond_icon.png'>  Shit. The ${htmlTitleHP()} doesn't know what to do. They don't want to die... They abscond. ");
-        mySide.absconded.add(this);
-        mySide.remainingPlayersHateYou(div, this);
-        return true;
-      } else {
-        appendHtml(div, " Shit. The ${htmlTitleHP()} doesn't know what to do. They don't want to die... Before they can decide whether or not to abscond ${Team.getTeamsNames(enemies)} blocks their escape route. Can't abscond, bro. ");
-        return false;
-      }
-    }
-    return false;
-  }
-
-  void aggrieve(Element div, GameEntity defense) {
-    GameEntity offense = this; //easier for now.
-    //the less dom we do the faster it will be, build up the string manually
-    String ret = "<br><Br> The ${offense.htmlTitleHP()} targets the ${defense.htmlTitleHP()} with their ${offense.specibus.fullName}. ";
-    if(offense.specibus.traits.contains(ItemTraitFactory.CORRUPT)) {
-      ret += " Uh. Wow. Should they be using that?";
-      if(offense is Player) {
-        Player p = offense as Player;
-        p.corruptionLevelOther += 10; //no, they really shouldn't.
-        //session.logger.info("corrupt specibus for player ${p.title()}, it's a ${p.specibus.fullName}");
-      }
-    }
-    if (defense.dead) ret = "$ret Apparently their corpse sure is distracting? How luuuuuuuucky for the remaining players!";
-
-    String luckCheck = Strife.checkLuck(ret,defense, offense);
-    if(luckCheck != null) {
-      DivElement tmp = new DivElement()..setInnerHtml(luckCheck);
-      div.append(tmp);
-      return;
-    }
-
-    String mobilityCheck = Strife.checkMobility(ret,defense, offense );
-
-    if(mobilityCheck != null) {
-      DivElement tmp = new DivElement()..setInnerHtml(mobilityCheck);
-      div.append(tmp);
-      return;
-    }
-
-    String hitCheck = Strife.checkDamage(ret,defense, offense );
-    //it will definitely return a string
-    DivElement tmp = new DivElement()..setInnerHtml(hitCheck);
-    div.append(tmp);
-    //jr from 10/25/18 don't remember why this is commented out. probably fine???
-    //this.processDeaths(div, offense, defense);
-  }
-
-
-
-
-  //currently only thing ghost pacts are good for post refactor.
-  void reviveViaGhostPact(Element div) {
-    List<GhostPact> undrainedPacts = removeDrainedGhostsFromPacts(ghostPacts);
-    if (!undrainedPacts.isEmpty) {
-      ////session.logger.info("using a pact to autorevive in session ${this.session.session_id}");
-      Player source = undrainedPacts[0].ghost;
-      source.causeOfDrain = name;
-      String ret = " In the afterlife, the ${htmlTitleBasic()} reminds the ${source.htmlTitleBasic()} of their promise of aid. The ghost agrees to donate their life force to return the ${htmlTitleBasic()} to life ";
-      if (this is Player) {
-        Player me = this;
-        if (me.godTier) ret = "$ret, but not before a lot of grumbling and arguing about how the pact shouldn't even be VALID anymore since the player is fucking GODTIER, they are going to revive fucking ANYWAY. But yeah, MAYBE it'd be judged HEROIC or some shit. Fine, they agree to go into a ghost coma or whatever. ";
-      }
-      ret = "${ret}It will be a while before the ghost recovers.";
-      appendHtml(div, ret);
-      Player myGhost = this.session.afterLife.findClosesToRealSelf(this);
-      removeFromArray(myGhost, this.session.afterLife.ghosts);
-      // CanvasElement canvas = drawReviveDead(div, this, source, undrainedPacts[0][1]);
-      makeAlive();
-      if (undrainedPacts[0].enablingAspect == Aspects.LIFE) {
-        addStat(Stats.CURRENT_HEALTH, 100); //i won't let you die again.
-      } else if (undrainedPacts[0].enablingAspect == Aspects.DOOM) {
-        addStat(Stats.MIN_LUCK, 100); //you've fulfilled the prophecy. you are no longer doomed.
-        div.appendHtml("The prophecy is fulfilled. ", treeSanitizer: NodeTreeSanitizer.trusted);
-      }
-    }
-  }
-
-  Team pickATeamToTarget(List<Team> team) {
-    //TODO later add actual AI to this but for now, should only be one other team.
-    return this.session.rand.pickFrom(team);
-  }
-
-  GameEntity pickATarget(List<GameEntity> targets) {
-    if (targets.isEmpty) return null;
-    if (targets.length == 1) return targets[0];
-    targets.sort(Stats.MOBILITY.sorter); //as long as I always prefer new targets of equal juciness, will target slowest people preferentially.
-    List<num> ratings = new List<num>();
-    for (GameEntity t in targets) {
-      num r = 0;
-      if (t.getStat(Stats.CURRENT_HEALTH) < getStat(Stats.POWER)) r += 1; //i can kill you in one hit.
-      if (t is Player) {
-        Player p = t;
-        if (p.aspect.isThisMe(Aspects.VOID)) r += -1; //hard to see
-        if (p.aspect.isThisMe(Aspects.LIGHT)) r += 1; //easy to see
-      }
-      //////session.logger.info("Added rating of $r to $t");
-      ratings.add(r);
-    }
-    GameEntity ret;
-    num chosen_rating = 0;
-    for (num i = 0; i < targets.length; i++) {
-      GameEntity checked = targets[i];
-      num checked_rating = ratings[i];
-      if (checked_rating >= chosen_rating) {
-        //////session.logger.info("found a better target");
-        chosen_rating = checked_rating;
-        ret = checked; //equal, because want LAST thing in list to be preffered if all things equal since slowest.
-      }
-    }
-    return ret;
-  }
-
-  void changeGrimDark(num val) {
-    //stubb
-  }
-
-  void increasePower() {
-    //stub for sprites, and maybe later consorts or carapcians
-  }
-
-  String describeBuffs() {
-    List<String> ret = <String>[];
-    Iterable<Stat> allStats = Stats.all;
-    //;
-    for (Stat stat in allStats) {
-      double withbuffs = this.stats.derive(stat); // functionally this.stats[stat]
-      double withoutbuffs = this.stats.derive(stat, (Buff b) => !b.combat);
-      double diff = withbuffs - withoutbuffs;
-      //;
-      //only say nothing if equal to zero
-      if (diff > 0) ret.add("more ${stat.emphaticPositive}");
-      if (diff < 0) ret.add("less ${stat.emphaticPositive}");
-    }
-    if (ret.isEmpty) return "";
-    return "${this.htmlTitleHP()} is feeling ${turnArrayIntoHumanSentence(ret)} than normal. ";
-  }
 
   void modifyAssociatedStat(num modValue, AssociatedStat stat) {
     //modValue * stat.multiplier.
@@ -888,12 +451,6 @@ class GameEntity extends Object with StatOwner   {
     copyFromJSON(rawJSON);
   }
 
-  void copyFromDataStringTemplate(String data) {
-    String dataWithoutName = data.split("$labelPattern")[1];
-    String rawJSON = LZString.decompressFromEncodedURIComponent(dataWithoutName);
-    copyFromJSONTemplate(rawJSON);
-  }
-
   String toDataString() {
     //print("data is ${toJSON()}");
     return  "$name$labelPattern${LZString.compressToEncodedURIComponent(toJSON().toString())}";
@@ -983,27 +540,6 @@ class GameEntity extends Object with StatOwner   {
       grist = getStat(Stats.EXPERIENCE)*100+100;
     }
 
-  }
-
-  //don't load everything, just the things the template can set
-  void copyFromJSONTemplate(String jsonString) {
-    //print("trying to copy from json $jsonString");
-    JSONObject json = new JSONObject.fromJSONString(jsonString);
-    name = json["name"];
-
-    String statString = json["stats"];
-    loadStats(statString);
-    //print("loaded stats");
-
-    String fraymotifString = json["fraymotifs"];
-    loadFraymotifs(fraymotifString);
-    // print("loaded fraymotifs");
-
-    if(json["specibus"] != null) specibus.copyFromJSON(new JSONObject.fromJSONString(json["specibus"]));
-    //print("loaded specibus");
-
-    String sylladexString = json["sylladex"];
-    loadSylladex(sylladexString);
   }
 
   void loadScenes(String weirdString) {
@@ -1125,35 +661,6 @@ class GameEntity extends Object with StatOwner   {
     return ret;
   }
 
-  List<SerializableScene> removeSerializableSceneFromString(String s) {
-    SerializableScene ret = new SerializableScene(session)..copyFromDataString(s);
-    //print("I want to remove $ret");
-    for(Scene scene in scenes) {
-      if(scene is SerializableScene) {
-        SerializableScene ss = scene as SerializableScene;
-        if(ss.toDataString() == s) {
-          //print ("i found $ret in scenes");
-          scenesToRemove.add(ss);
-        }
-      }
-    }
-
-    for(Scene scene in scenesToAdd) {
-      if(scene is SerializableScene) {
-        SerializableScene ss = scene as SerializableScene;
-        if(ss.toDataString() == s) {
-          //print("i found $ret in scenes to add");
-          scenesToRemove.add(ss);
-        }
-      }
-    }
-
-    //JR from 9/13/18 says: WHY THE FUCK DID PAST JR REMOVE THE SCENE TWO DIFFERNET WAYS AND THEN JUST ADD IT RIGHT BACK IN
-    //a;lsdkfjas;lfjas;dlfj
-    //...probably from a copy pasta typo. jessus fuck
-    //scenesToAdd.add(ret);
-    return scenesToRemove;
-  }
 
 
   String htmlTitleHP() {
@@ -1164,7 +671,6 @@ class GameEntity extends Object with StatOwner   {
     return "${getToolTip()}$ret$pname (${(this.getStat(Stats.CURRENT_HEALTH)).round()} hp, ${(this.getStat(Stats.POWER)).round()} power)</font></span>"; //TODO denizens are aspect colored. also, that extra span there is to close out the tooltip
   }
 
-  void flipOut(String reason) {}
 
   String htmlTitleBasic() {
     String ret = "";
@@ -1178,11 +684,6 @@ class GameEntity extends Object with StatOwner   {
     return "$ret $name";
   }
 
-  String htmlTitleHPNoTip() {
-    String ret = "";
-    if (this.crowned != null) ret = "${ret}Crowned ";
-    return "$ret $name (${(this.getStat(Stats.CURRENT_HEALTH)).round()} hp, ${(this.getStat(Stats.POWER)).round()} power)";
-  }
   void makeAlive() {
     this.dead = false;
     this.heal();
@@ -1240,35 +741,6 @@ class GameEntity extends Object with StatOwner   {
     return "";
   }
 
-  String makeDead(String causeOfDeath, GameEntity killer, [bool allowLooting = true]) {
-    if(session.mutator.lifeField) return " Death has no meaning."; //does fucking nothing.
-    if(unconditionallyImmortal) return "You can't kill the unkillable, dunkass.";
-    this.dead = true;
-    String looting = "";
-    this.causeOfDeath = causeOfDeath;
-    if(killer != null) {
-      if(this is Player) {
-        killer.playerKillCount ++;
-      }else {
-        killer.npcKillCount ++;
-      }
-      if(killer != null && allowLooting) {
-        if(sylladex.inventory.isNotEmpty) {
-          looting = "${killer.htmlTitleWithTip()} takes ${turnArrayIntoHumanSentence(sylladex.inventory)} as a trophy.";
-          killer.lootCorpse(this);
-        }else {
-          looting = "There was nothing to loot.";
-        }
-      }
-    }
-    String bb = "";
-    if(killer != null && !villain && killer != this) bb = killer.makeBigBad();
-    return "${htmlTitle()} is dead. $looting $bb";
-  }
-
-  void interactionEffect(GameEntity ge) {
-    //none
-  }
 
   //takes in a stat name we want to use. for example, use only min luck to avoid bad events.
   double rollForLuck([Stat stat]) {
@@ -1281,13 +753,6 @@ class GameEntity extends Object with StatOwner   {
   }
 
 
-
-  void boostAllRelationshipsWithMeBy(num amount) {}
-  void boostAllRelationshipsBy(num amount) {}
-  List<GameEntity> getFriendsFromList(List<GameEntity> list) {
-    return <GameEntity>[];
-  }
-
   List<Relationship> getHearts() {
     return <Relationship>[];
   }
@@ -1298,11 +763,6 @@ class GameEntity extends Object with StatOwner   {
 
   void processCardFor() {
     //does nothing, offspring will override if they need to
-  }
-
-
-  static String getEntitiesNames(List<GameEntity> ges) {
-    return ges.map((i) => i.title()).join(','); //TODO put an and at the end.
   }
 
   static int generateID() {
@@ -1319,41 +779,6 @@ class GameEntity extends Object with StatOwner   {
   String title() {
     return name; //players will override this
   }
-
-  void setImportantShit(Session newSession, List<AssociatedStat> newAssociatedStats, String newName, double strength, List<Fraymotif> newFraymotifs, bool denizenBeat, bool god) {
-    ;
-    //based off existing denizen code.  care about which aspect i am.
-    //also make minion here.
-    this.name = newName;
-    this.session = newSession;
-    if(denizenBeat) this.addBuff(new BuffDenizenBeaten());
-    if(god) this.addBuff(new BuffGodTier());
-    this.setStat(Stats.EXPERIENCE, strength);
-    Map<Stat, num> tmpStatHolder = <Stat, num>{};
-    tmpStatHolder[Stats.MIN_LUCK] = -10;
-    tmpStatHolder[Stats.MAX_LUCK] = 10;
-    tmpStatHolder[Stats.HEALTH] = 10;
-    tmpStatHolder[Stats.CURRENT_HEALTH] = 10;
-    tmpStatHolder[Stats.MOBILITY] = 10;
-    tmpStatHolder[Stats.SANITY] = 10;
-    tmpStatHolder[Stats.ALCHEMY] = 10;
-    tmpStatHolder[Stats.FREE_WILL] = 10;
-    tmpStatHolder[Stats.POWER] =10;
-    tmpStatHolder[Stats.GRIST] = 100;
-    tmpStatHolder[Stats.RELATIONSHIPS] = 10; //not REAL relationships, but real enough for our purposes.
-    tmpStatHolder[Stats.SBURB_LORE] = 0;
-    this.associatedStats = newAssociatedStats;
-    for (num i = 0; i < associatedStats.length; i++) {
-      //alert("I have associated stats: " + i);
-      AssociatedStat stat = associatedStats[i];
-      if(tmpStatHolder[stat.stat] != null) tmpStatHolder[stat.stat] += tmpStatHolder[stat.stat] * stat.multiplier * strength;
-    }
-    //denizen.setStats(tmpStatHolder.minLuck,tmpStatHolder.maxLuck,tmpStatHolder.hp,tmpStatHolder.mobility,tmpStatHolde.getStat(Stats.SANITY),tmpStatHolder.freeWill,tmpStatHolder.getStat(Stats.POWER),true, false, [],1000000);
-    this.stats.setMap(tmpStatHolder);
-    this.grist = strength * 100;
-    this.setStat(Stats.CURRENT_HEALTH, this.getStat(Stats.HEALTH));
-    this.fraymotifs = newFraymotifs;
-  }
 }
 
 
@@ -1366,49 +791,8 @@ class AssociatedStat {
 
   AssociatedStat(Stat this.stat, this.multiplier, bool this.isFromAspect) {}
 
-  void applyToPlayer(Player player) {
-    player.associatedStats.add(new AssociatedStat(this.stat, this.multiplier, this.isFromAspect));
-  }
-
   @override
   String toString() => "[$stat x $multiplier${this.isFromAspect ? " (from Aspect)" : ""}]";
 }
 
-/// AssociatedStat variant for use as a reference for "this will be random when given to a player" like in Void
-class AssociatedStatRandom extends AssociatedStat {
-  Iterable<Stat> stats;
-
-  AssociatedStatRandom(Iterable<Stat> this.stats, num multiplier, bool isFromAspect):super(null, multiplier, isFromAspect);
-
-  @override
-  void applyToPlayer(Player player) {
-    player.associatedStats.add(new AssociatedStat(player.rand.pickFrom(this.stats), this.multiplier, this.isFromAspect));
-  }
-
-  @override
-  String toString() => "[(Random from $stats) x $multiplier${this.isFromAspect ? " (from Aspect)" : ""}]";
-}
-
-/// AssociatedStat variant for use as a reference for "will apply the player's interest stats when given" like in Heart
-class AssociatedStatInterests extends AssociatedStat {
-
-  AssociatedStatInterests(bool isFromAspect, [num multiplier = 1.0]):super(null, multiplier, isFromAspect);
-
-  @override
-  void applyToPlayer(Player player) {
-    player.associatedStats.addAll(player.interest1.category.stats.map((AssociatedStat s) => new AssociatedStat(s.stat, s.multiplier * this.multiplier, this.isFromAspect)));
-    player.associatedStats.addAll(player.interest2.category.stats.map((AssociatedStat s) => new AssociatedStat(s.stat, s.multiplier * this.multiplier, this.isFromAspect)));
-  }
-
-  @override
-  String toString() => "[Stats assigned from player Interests x$multiplier]";
-}
-
-//can eventually have a duration, but for now, assumed to be the whole fight. i don't want fights to last long.
-class BuffOld {
-  BuffOld(Stat this.name, num this.value) {}
-
-  Stat name;
-  num value;
-}
 

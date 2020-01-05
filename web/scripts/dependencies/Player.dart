@@ -256,188 +256,13 @@ class Player extends GameEntity{
     this.flipOutReason = reason;
   }
 
-  @override
-  void changeGrimDark(num val) {
-    //this.grimDark += val;
-    num tmp = this.grimDark + val;
-    bool render = false;
 
-    if (this.grimDark <= 3 && tmp > 3) { //newly GrimDark
-      //;
-      render = true;
-    } else if (this.grimDark > 3 && tmp <= 3) { //newly recovered.
-      render = true;
-    }
-    this.grimDark += val;
-    if (render) {
-      this.renderSelf("changeGrimDark");
-    }
-    //jr of 10/22/2018 says that this might help keep things from acting weird
-    //this.grimDark = Math.min(4,this.grimDark); //don't be higher than 4
-    //this.grimDark = Math.max(0,this.grimDark); //don't be lower than 0.
-  }
-
-  void makeMurderMode() {
-    this.murderMode = true;
-    this.increasePower();
-    this.renderSelf("makeMurderMode"); //new scars. //can't do scars just on top of sprite 'cause hair might cover.'
-  }
-
-  void unmakeMurderMode() {
-    if(session.mutator.rageField) return; //you don't LEAVE murdermode until you are mothering fuck DONE you heretic
-    this.murderMode = false;
-    this.leftMurderMode = true;
-    this.renderSelf("unmakeMurderMode");
-  }
-
-  void addDoomedTimeClone(Player timeClone) {
-    doomedTimeClones.add(timeClone);
-    addStat(Stats.SANITY, -10);
-    flipOut("their own doomed time clones");
-  }
-
-
-  @override
-  String makeDead(String causeOfDeath, GameEntity killer, [bool allowLooting = true]) {
-    //session.logger.info("DEBUGGING MAKE DEAD making ${title()} dead $causeOfDeath");
-    String looting = "";
-    myKiller = killer;
-    //can loot corpses even in life gnosis, or how else will things happen?
-    if(killer != null && allowLooting) {
-      if(sylladex.inventory.isNotEmpty) {
-        looting = "$killer takes ${turnArrayIntoHumanSentence(sylladex.inventory)} as a trophy";
-      }else {
-        looting = "There was nothing to loot.";
-      }
-      killer.lootCorpse(this);
-    }
-
-    if(session.mutator.lifeField) return " Death has no meaning. "; //does fucking nothing.
-
-    if(killer != null) {
-      if(this is Player) {
-        killer.playerKillCount ++;
-      }else {
-        killer.npcKillCount ++;
-      }
-    }
-    String ret = "${htmlTitle()} is dead. ";
-    bool alreadyDead = this.dead;
-
-    this.dead = true;
-    this.timesDied ++;
-    this.stats.onDeath();
-    this.causeOfDeath = sanitizeString(causeOfDeath);
-    if (this.getStat(Stats.CURRENT_HEALTH) > 0) this.setStat(Stats.CURRENT_HEALTH, -1); //just in case anything weird is going on. dead is dead.  (for example, you could have been debuffed of hp).
-    if (!this.godTier) { //god tiers only make ghosts in GodTierRevivial
-      Player g = Player.makeRenderingSnapshot(this,false);
-      g.fraymotifs = new List<Fraymotif>.from(this.fraymotifs); //copy not reference
-      this.session.afterLife.addGhost(g);
-    }
-    //was in make alive, but realized that this makes doom ghosts way stronger if it's here. powered by DEATH, but being revived.
-    if(prophecy == ProphecyState.ACTIVE){ //powered by their own doom.
-      prophecy = ProphecyState.FULLFILLED;
-      ret += " The prophecy is fullfilled. ";
-    }
-    if(!alreadyDead) {
-      if(canvas == null) initSpriteCanvas();
-      if(!Drawing.checkSimMode()) canvas.context2D.save(); //need to restore living state latr
-      this.renderSelf("makeDead");
-      this.triggerOtherPlayersWithMyDeath();
-      canvas.context2D.restore(); //only stay rotated long enough to render.
-    }
-
-    String bb = "";
-    //no you can't be a villain for dying randomly or killing yourself
-    if(killer != null && !villain && killer != this) bb = killer.makeBigBad();
-
-    return "$ret $looting $bb";
-  }
-
-  void triggerOtherPlayersWithMyDeath() {
-    //go through my relationships. if i am the only dead person, trigger everybody (death still has impact)
-    //trigger (possibly ontop of base trigger) friends, and quadrant mates. really fuck up my moirel(s) if i have any
-    //if triggered, also give a flip out reason.
-    List<Player> dead = findDeadPlayers(this.session.players);
-    for (num i = 0; i < this.relationships.length; i++) {
-      Relationship r = this.relationships[i];
-
-      if (r.saved_type == r.goodBig) {
-        r.target.addStat(Stats.SANITY, -10);
-        if ((r.target  as Player).flipOutReason == null) {
-          (r.target  as Player).flipOutReason = " their dead crush, the ${this.htmlTitleBasic()}"; //don't override existing flip out reasons. not for something as generic as a dead crush.
-          (r.target  as Player).flippingOutOverDeadPlayer = this;
-        }
-      } else if (r.value > 0) {
-        r.target.addStat(Stats.SANITY, -10);
-        if ((r.target  as Player).flipOutReason == null) {
-          (r.target  as Player).flippingOutOverDeadPlayer = this;
-          (r.target  as Player).flipOutReason = " their dead friend, the ${this.htmlTitleBasic()}"; //don't override existing flip out reasons. not for something as generic as a dead friend.
-        }
-      } else if (r.saved_type == r.spades) {
-        (r.target  as Player).addStat(Stats.SANITY, -100);
-        (r.target  as Player).flipOutReason = " their dead Kismesis, the ${this.htmlTitleBasic()}";
-        (r.target  as Player).flippingOutOverDeadPlayer = this;
-      } else if (r.saved_type == r.heart) {
-        (r.target  as Player).addStat(Stats.SANITY, -100);
-        (r.target  as Player).flipOutReason = " their dead Matesprit, the ${this.htmlTitleBasic()}";
-        (r.target  as Player).flippingOutOverDeadPlayer = this;
-      } else if (r.saved_type == r.diamond) {
-        (r.target  as Player).addStat(Stats.SANITY, -1000);
-        (r.target  as Player).damageAllRelationships();
-        (r.target  as Player).damageAllRelationships();
-        (r.target  as Player).damageAllRelationships();
-        (r.target  as Player).flipOutReason = " their dead Moirail, the ${this.htmlTitleBasic()}, fuck, that can't be good...";
-        (r.target  as Player).flippingOutOverDeadPlayer = this;
-      }
-
-      //whether or not i care about them, there's also the novelty factor.
-      if (dead.length == 1) { //if only I am dead, death still has it's impact and even my enemies care.
-        r.target.addStat(Stats.SANITY, -10);
-        if ((r.target  as Player).flipOutReason == null) {
-          (r.target  as Player).flipOutReason = " the dead player, the ${this.htmlTitleBasic()}"; //don't override existing flip out reasons. not for something as generic as a dead player.
-          (r.target  as Player).flippingOutOverDeadPlayer = this;
-        }
-      }
-      ////print(r.target.title() + " has flipOutReason of: " + r.target.flipOutReason + " and knows about dead player: " + r.target.flippingOutOverDeadPlayer);
-    }
-  }
-
-  Player getPactWithGhost(Player ghost) {
-    for (num i = 0; i < this.ghostPacts.length; i++) {
-      Player g = this.ghostPacts[i].ghost;
-      if (g == ghost) return g;
-    }
-    return null;
-  }
 
   List<Relationship> getSpades() {
     List<Relationship> ret = <Relationship>[];
     for (num i = 0; i < this.relationships.length; i++) {
       Relationship r = this.relationships[i];
       if (r.saved_type == r.spades) {
-        ret.add(r);
-      }
-    }
-    return ret;
-  }
-
-  List<Relationship> getCrushes() {
-    List<Relationship> ret = <Relationship>[];
-    for (num i = 0; i < this.relationships.length; i++) {
-      Relationship r = this.relationships[i];
-      if (r.saved_type == r.goodBig) {
-        ret.add(r);
-      }
-    }
-    return ret;
-  }
-
-  List<Relationship> getBlackCrushes() {
-    List<Relationship> ret = <Relationship>[];
-    for (num i = 0; i < this.relationships.length; i++) {
-      Relationship r = this.relationships[i];
-      if (r.saved_type == r.badBig) {
         ret.add(r);
       }
     }
@@ -470,48 +295,6 @@ class Player extends GameEntity{
     return tmp;
   }
 
-  void setDenizenDefeated() {
-    _denizenDefeated = true;
-    addBuff(new BuffDenizenBeaten());  //current and future doubling of power.
-    leveledTheHellUp = true;
-    session.stats.denizenBeat = true;
-  }
-
-  void makeGodTier() {
-    //this.addStat(Stats.HEALTH, 500); //they are GODS.
-    //this.addStat(Stats.CURRENT_HEALTH, 500); //they are GODS.
-    //this.addStat(Stats.POWER, 500); //they are GODS.
-    this.addBuff(new BuffGodTier()); // +100 base power and health, 2.5 stat multiplier
-    this.increasePower();
-    //was on a quest bed.
-    if(!isDreamSelf && dreamSelf) canSkaia = true;
-
-    //i know for a fact this is rare enough that i'll forget i added it.
-    if(dreamSelf && aspect != Aspects.TIME && aspect != Aspects.SPACE &&  sylladex.containsWord("Sauce")) {
-      aspect = Aspects.SAUCE;
-      session.logger.info("AB: Bluh. One of Shogun's Sauce Glitches just triggered. Better tell JR.");
-      fraymotifs.add(new Fraymotif("Seinfeld Remix", 13)
-        ..effects.add(new FraymotifEffect(Stats.FREE_WILL, 2, true))
-        ..desc = " What the fuck? What even is this? Is it a riddle? I thought JR said it wasn't important... ");
-    }
-
-    if(dreamSelf && aspect != Aspects.TIME && aspect != Aspects.SPACE &&  sylladex.containsWord("Juice")) {
-      aspect = Aspects.JUICE;
-      session.logger.info("AB: Bluh. One of Shogun's Juice Glitches just triggered. Better tell JR.");
-      fraymotifs.add(new Fraymotif("Seinfeld Remix", 13)
-        ..effects.add(new FraymotifEffect(Stats.FREE_WILL, 2, true))
-        ..desc = " What the fuck? What even is this? Is it a riddle? I thought JR said it wasn't important... ");
-    }
-
-    this.godTier = true;
-    this.session.stats.godTier = true;
-    this.dreamSelf = false;
-    this.canGodTierRevive = true;
-    this.leftMurderMode = false; //no scars, unlike other revival methods
-    this.isDreamSelf = false;
-    this.makeAlive();
-    renderSelf("goGodTier");
-  }
 
   @override
   void makeAlive() {
@@ -543,10 +326,7 @@ class Player extends GameEntity{
     _guardian = g;
   }
 
-  @override
-  bool renderable() {
-    return true;
-  }
+
 
   @override
   String title() {
