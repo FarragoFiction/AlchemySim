@@ -24,7 +24,6 @@ class Fraymotif {
   //based on it.
   //make sure ENEMY is the same for all effects, dunkass.
   String desc; //will generate it procedurally if not set, otherwise things like sprites will have it hand made.
-  bool used = false; //when start fight, set to false. set to true when used. once per fight
   List<FraymotifEffect> effects = <FraymotifEffect>[]; //each effect is a target, a revive, a statName
   num baseValue;
 
@@ -225,48 +224,6 @@ class Fraymotif {
     if (statName == Stats.ALCHEMY) return ["failure", "writer's blocks", "monotony", "broken objects", "object shards", "nails", "splinters"];
 
     return null;
-  }
-
-  String condenseEffectsText() {
-    /*
-          If two effects both DAMAGE an ENEMY, then I want to generate text where it lists the types of damage.
-          “Damages an Enemy based on how WILLFUL, STRONG, CALM, and FAST, the casters are compared to their enemy.”
-        */
-    //8 main types of effects, damage/buff and 0-4
-    var effectTypes = {}; //hash coded by effectType damage0 vs damage1 vs buff0. first element is template
-    for (int i = 0; i < 4; i++) {
-      effectTypes["damage$i"] = [];
-      effectTypes["buff$i"] = [];
-    }
-    for (num i = 0; i < this.effects.length; i++) {
-      var e = this.effects[i];
-      if (e.damageInsteadOfBuff) {
-        if (effectTypes["damage${e.target}"].length == 0) effectTypes["damage${e.target}"].add(e.toString());
-        //no repeats
-        if (effectTypes["damage${e.target}"].indexOf(e.statName) == -1) effectTypes["damage${e.target}"].add(e.statName);
-      } else {
-        if (effectTypes["buff${e.target}"].length == 0) effectTypes["buff${e.target}"].add(e.toString());
-        if (effectTypes["buff${e.target}"].indexOf(e.statName) == -1) effectTypes["buff${e.target}"].add(e.statName);
-      }
-    }
-    //now i have a hash of all effect types and the stats i'm applying to them.
-    List<dynamic> retArray = [];
-    for (int i = 0; i < 4; i++) {
-      List<dynamic> stats = [];
-      if (effectTypes["damage$i"].length > 0) {
-        stats = effectTypes["damage$i"];
-        var template = stats[0];
-        stats.remove(template);
-        retArray.add(template.replaceAll("STAT", turnArrayIntoHumanSentence(stats)));
-      }
-      if (effectTypes["buff$i"].length > 0) {
-        stats = effectTypes["buff$i"];
-        var template = stats[0];
-        stats.remove(template);
-        retArray.add(template.replaceAll("STAT", turnArrayIntoHumanSentence(stats)));
-      }
-    }
-    return turnArrayIntoHumanSentence(retArray);
   }
 
   String replaceKeyWordsForFlavorTextBase(Random rand, String phrase) {
