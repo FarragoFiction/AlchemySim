@@ -59,9 +59,7 @@ class Gristmas extends Scene {
     appendHtml(div, ret);
   }
 
-  bool playerCanMakeRobot(Player p)
-
-  {
+  bool playerCanMakeRobot(Player p) {
     bool first = getAlchemySkillNormalized(p) >=2 && p.companionsCopy.isEmpty;
     if(first) return first;
     //one last shot, you like tech?
