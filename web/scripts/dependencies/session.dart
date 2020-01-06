@@ -25,7 +25,6 @@ class Session {
   bool get canReckoning {
     if(tableGuardianMode) return false;
     int difficulty = 2;//at least half of us are done
-    if(stats.crownedCarapace)difficulty = players.length; // ANY of us are down (ala canon's early reckoning)
     return numberPlayersOnBattlefield > (players.length/difficulty).round();
   }//can't do the reckoning until this is set (usually when at least one player has made it to the battlefield)
   //TODO some of these should just live in session mutator
@@ -41,21 +40,12 @@ class Session {
   List<Player> players = <Player>[];
 
   //if i have less than expected grist, then no frog, bucko
-  SessionStats stats = new SessionStats();
   Random rand;
-  SessionMutator mutator;
 
   Session(int this.session_id, [bool isCombo= false]) {
 
-    stats.isComboedInto = isCombo;
-    logger = Logger.get("Session: $session_id", false);
     this.rand = new Random(session_id);
-    PotentialSprite.initializeAShitTonOfPotentialSprites(this);
-    npcHandler = new NPCHandler(this);
     //npcHandler.setupNpcs(); reinit will handle this
-    stats.initialGameEntityId = GameEntity.getIDCopy();
-    mutator.syncToSession(this);
-    logger.info("Session made with ${sessionHealth} health.");
     //reinit first, to match scratches and yards and shit, make players with fresh seed essentially
   }
 

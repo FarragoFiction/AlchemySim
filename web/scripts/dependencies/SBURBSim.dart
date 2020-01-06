@@ -21,6 +21,8 @@ import '../Item.dart';
 import '../MagicalItem.dart';
 import '../Specibus.dart';
 import '../Trait.dart';
+import 'weighted_lists.dart';
+import 'SBURBClass.dart';
 
 export 'colour.dart';
 export 'fraymotif.dart';
@@ -45,3 +47,6 @@ export '../Item.dart';
 export '../MagicalItem.dart';
 export '../Specibus.dart';
 export '../Trait.dart';
+export 'weighted_lists.dart';
+export 'SBURBClass.dart';
+export 'Interest.dart';

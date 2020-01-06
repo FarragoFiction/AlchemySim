@@ -95,17 +95,6 @@ abstract class AlchemyResult implements Comparable<AlchemyResult> {
     return (other.result.rank - result.rank).sign.round(); //higher numbers first
   }
 
-  ///returns a list of all possible alchemy types between these two items.
-  static List<AlchemyResult> planAlchemy(List<Item> items, Session session, [int skill = 0]) {
-    if(items.isEmpty) return new List<AlchemyResult>();
-    if(!items.first.canUpgrade(skill == 3) && !session.mutator.dreamField) return new List<AlchemyResult>();
-    if(skill == 0) return <AlchemyResult>[new AlchemyResultAND(items)];
-    if(skill == 1) return <AlchemyResult>[new AlchemyResultAND(items), new AlchemyResultOR(items)];
-    if(skill > 1) return <AlchemyResult>[new AlchemyResultAND(items), new AlchemyResultOR(items), new AlchemyResultXOR(items)];
-
-
-    return <AlchemyResult>[new AlchemyResultAND(items), new AlchemyResultOR(items), new AlchemyResultXOR(items)];
-  }
 }
 
 class AlchemyResultAND extends AlchemyResult {

@@ -344,21 +344,9 @@ class Sylladex extends Object with IterableMixin<Item> {
       //
     }
     //we can't both own it
-    if(i.owner != null && i.owner != owner) {
-      // if(i is Ring)
-      i.owner.sylladex.remove(i);
-      if(i.owner is Carapace && (item is Ring || item is Scepter)) (i.owner as Carapace).pickName();
-    }else {
-      //if(i is Ring)
-
-    }
     inventory.add(i);
     i.owner = owner;
     //
-    if(owner is Carapace && (item is Ring || item is Scepter)) {
-      (owner as Carapace).pickName();
-      if(!(owner as Carapace).royalty) owner.session.stats.crownedCarapace = true;
-    }
 
     if(item is Ring || item is Scepter) {
       owner.everCrowned = true;

@@ -50,6 +50,8 @@ abstract class StatOwner implements StatObject {
     this._stats = this.createHolder();
   }
 
+  StatHolder createHolder();
+
   StatHolder get stats => _stats;
   void setStat(Stat stat, num val) => this.stats.setBase(stat, val.toDouble());
 }
@@ -60,7 +62,13 @@ abstract class OwnedStatHolder<T extends StatOwner> extends StatHolder {
   OwnedStatHolder(T this.owner);
 }
 
+class PlayerStatHolder extends StatHolder {
 
+  static List<Stat> playerStats = <Stat>[Stats.POWER, Stats.HEALTH, Stats.SBURB_LORE, Stats.SANITY, Stats.FREE_WILL, Stats.MAX_LUCK, Stats.MIN_LUCK, Stats.MOBILITY, Stats.ALCHEMY, Stats.RELATIONSHIPS];
+
+  PlayerStatHolder():super();
+
+}
 
 
 class MagicalItemStatHolder<T extends MagicalItem> extends OwnedStatHolder<T> {

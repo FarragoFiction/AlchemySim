@@ -81,6 +81,8 @@ class GameEntity extends Object with StatOwner   {
     }
   }
 
+  @override
+  StatHolder createHolder() =>new StatHolder();
 
   List<GameEntity> get companionsCopy {
     //don't want there to be a way to get companions directly
@@ -93,21 +95,6 @@ class GameEntity extends Object with StatOwner   {
     return this.title();
   }
 
-  //will be diff for carapaces
-  List<Fraymotif> get fraymotifsForDisplay {
-    List<Fraymotif> ret = new List<Fraymotif>.from(fraymotifs);
-    if(this is Carapace) {
-      for (Item item in sylladex) {
-        if (item is MagicalItem) {
-          MagicalItem m = item as MagicalItem;
-          if (!(m is Ring) && !(m is Scepter)) ret.addAll(
-              m.fraymotifs);
-        }
-      }
-    }
-    // ;
-    return ret;
-  }
 
 
   String htmlTitleBasicNoTip() {
