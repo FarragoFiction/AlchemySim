@@ -50,3 +50,4 @@ export '../Trait.dart';
 export 'weighted_lists.dart';
 export 'SBURBClass.dart';
 export 'Interest.dart';
+export 'Aspect.dart';

@@ -26,7 +26,7 @@ class Player extends GameEntity{
 
 
   String htmlTitleBasicNoTip() {
-    return "${this.aspect.fontTag()}${this.titleBasic()}</font> (<font color = '${getChatFontColor()}'>${chatHandle}</font>)";
+    return "${this.titleBasic()}</font> (${chatHandle}</font>)";
   }
 
   //@override
@@ -37,14 +37,6 @@ class Player extends GameEntity{
     return ret;
   }
 
-
-  String getChatFontColor() {
-    if (this.isTroll) {
-      return this.bloodColor;
-    } else {
-      return this.aspect.palette.text.toStyleString();
-    }
-  }
 
 
   void initializeLuck() {
