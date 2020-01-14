@@ -1,0 +1,221 @@
+#story{
+	width:1000px;
+	background-color: white;
+	margin-left: auto;
+	margin-right: auto;
+	padding: 10px;
+
+}
+
+#traitTable{
+    background-color: white;
+    padding: 10px;
+    width 100%;
+
+}
+
+#announcement{
+    font-family: 'strife', sans-serif;
+    padding: 10px;
+}
+#grist{
+    font-family: 'strife', sans-serif;
+    padding: 10px;
+}
+
+#level{
+    font-family: 'strife', sans-serif;
+    padding: 10px;
+}
+
+body{
+	background-image: url("../images/Skaia_Clouds.png");
+}
+
+@font-face {
+    font-family: strife;
+    src: url("../Fonts/Strife.ttf");
+}
+
+
+#operator{
+    vertical-align: top;
+}
+
+#achievements{
+  font-family: 'strife', sans-serif;
+  display: inline-block;
+}
+
+#storeDiv{
+    display: none;
+}
+
+#buyshit{
+  font-family: 'strife', sans-serif;
+  display: inline-block;
+  padding-top:10px;
+  height: 300px;
+  overflow: scroll;
+}
+
+#sellshit{
+  font-family: 'strife', sans-serif;
+  display: inline-block;
+  height: 300px;
+  padding-top:10px;
+  overflow: scroll;
+}
+
+#abjshit{
+  font-family: 'strife', sans-serif;
+  display: none;
+  color: #ffb82d;
+  height: 300px;
+  padding-top:10px;
+  overflow: scroll;
+}
+
+.myItems{
+ color: #9630bf;
+ display: inline-block;
+ padding: 5px;
+ margin: 5px;
+ height: 50px;
+ width: 150px;
+ border: 3px solid #9630bf;
+ vertical-align: top;
+ text-align: middle;
+ background-color: #cc87e8;
+ overflow:  hidden;
+}
+
+#shop{
+    position: relative;
+    height: 618px;
+}
+#shopKeep{
+    position: absolute;
+    left: 350px;
+    top: 175px;
+    z-index: 0;
+}
+
+div:focus {
+    background-color:#9630bf;
+    color: white;
+}
+
+.transactButton{
+    position: absolute;
+    bottom: 0px;
+    padding: 5px;
+    font-size: 22px;
+    font-family: 'strife', sans-serif;
+    left: 0px;
+    background: red;
+    color: black;
+}
+
+button{
+    margin: 10px;
+    padding: 10px;
+    background-color: #9630bf;
+    color: #cc87e8;
+    font-family: 'strife', sans-serif;
+}
+
+
+#quip{
+    position: absolute;
+    font-family: 'strife', sans-serif;
+    color: red;
+    font-size: 10px;
+    left: 75px;
+    top: 200px;
+    width: 325px;
+    height: 250px;
+    overflow: hidden;
+    z-index: 3;
+}
+#shopGraphic{
+    position: absolute;
+    z-index: 1;
+    left: 0px;
+    top: 0px;
+}
+
+td{
+ background-color: #fcf9bd;
+ font-family: 'strife', sans-serif;
+
+}
+
+select{
+ background-color: #fffee9;
+ color: #9630bf;
+
+
+}
+
+select option{
+ background-color: #fffee9;
+ color: #9630bf;
+
+
+}
+
+.yourItems{
+  color: #9630bf;
+  height: 50px;
+  vertical-align: top;
+  display: inline-block;
+  padding: 5px;
+  margin: 5px;
+  width: 150px;
+  border: 3px solid #bdb968;
+  text-align: middle;
+  background-color: #fcf9bd;
+  overflow: hidden;
+}
+
+
+.missingAchievement{
+    color: #888888;
+    display: inline-block;
+    padding: 5px;
+    height: 50px;
+    width: 150px;
+    border: 3px solid #AAAAAA;
+    vertical-align: top;
+    text-align: middle;
+    background-color: #BBBBBB;
+}
+
+.passedAchievement{
+    color: #9630bf;
+    height: 50px;
+    vertical-align: top;
+    display: inline-block;
+    padding: 5px;
+    width: 150px;
+    border: 3px solid #9630bf;
+    text-align: middle;
+    background-color: #cc87e8;
+}
+
+td{
+    padding: 10px;
+    width: 30%;
+    text-align: center;
+     color: #9630bf;
+
+}
+.oneTrait{
+    padding-left: 10px;
+}
+
+.itemHeader{
+    font-weight: bold;
+    padding: 10px;
+}
