@@ -63,8 +63,8 @@ Future<Null> globalInit() async {
   ItemTraitFactory.init();
   SpecibusFactory.init();
   //FeatureFactory.init(); //do BEFORE classes or aspects or you're gonna have a bad time (null features) PL figured this out
-  //SBURBClassManager.init();
-  //Aspects.init(); //todo fix
+  //SBURBClassManager.init(); //todo fix
+  Aspects.init();
   InterestManager.init();
 
   //Loader.init();
