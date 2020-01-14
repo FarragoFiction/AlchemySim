@@ -1,19 +1,19 @@
 import 'dart:html';
 import 'dart:async';
-import 'Item.dart';
-import 'dependencies/random_tables.dart';
-import 'Trait.dart';
-import 'dependencies/colour.dart';
-import 'dependencies/SBURBSim.dart';
-import 'dependencies/navbar.dart';
-import 'dependencies/random.dart';
-import 'dependencies/handle_sprites.dart';
-import 'dependencies/Player.dart';
-import 'dependencies/player_functions.dart';
-import 'dependencies/session.dart';
-import 'dependencies/Gristmas.dart';
-import 'dependencies/GameEntity.dart';
-import 'AlchemyResult.dart';
+import 'scripts/Item.dart';
+import 'scripts/dependencies/random_tables.dart';
+import 'scripts/Trait.dart';
+import 'scripts/dependencies/colour.dart';
+import 'scripts/dependencies/SBURBSim.dart';
+import 'scripts/dependencies/navbar.dart';
+import 'scripts/dependencies/random.dart';
+import 'scripts/dependencies/handle_sprites.dart';
+import 'scripts/dependencies/Player.dart';
+import 'scripts/dependencies/player_functions.dart';
+import 'scripts/dependencies/session.dart';
+import 'scripts/dependencies/Gristmas.dart';
+import 'scripts/dependencies/GameEntity.dart';
+import 'scripts/AlchemyResult.dart';
 
 
 String AND = "AND";
