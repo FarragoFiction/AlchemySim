@@ -19,7 +19,7 @@ class Player extends GameEntity{
   String bloodColor = "#ff0000"; //human red.
 
 
-  Player([Session session, SBURBClass this.class_name, Aspect this.aspect]) : super("", session);
+  Player([Session this.session, SBURBClass this.class_name, Aspect this.aspect]) : super("", session);
     @override
   String get name => "${title()}($chatHandle)";
 

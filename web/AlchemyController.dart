@@ -200,6 +200,7 @@ void init() {
 
   //InterestManager.init();
   player = randomPlayer(new Session(int.parse(todayToSession())));
+  print(player.session);
 
 
   Achievement.gristDiv = querySelector("#grist");
