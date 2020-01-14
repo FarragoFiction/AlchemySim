@@ -12,7 +12,7 @@ Player randomPlayerWithClaspect(Session session, SBURBClass c, Aspect a) {
 
 Player randomPlayer(Session session) {
   //remove class AND aspect from available
-  SBURBClass c = session.rand.pickFrom(SBURBClass.all);
+  SBURBClass c = session.rand.pickFrom(SBURBClassManager.all);
   Aspect a = session.rand.pickFrom(Aspects.all);
   return randomPlayerWithClaspect(session, c, a);
 }
