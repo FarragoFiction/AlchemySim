@@ -69,8 +69,25 @@ class GameEntity extends Object with StatOwner   {
   bool doomed = false; //if you are doomed, no matter what you are, you are likely to die.
   String causeOfDeath = ""; //fill in every time you die. only matters if you're dead at end
 
-  //npc traits: violent, lucky, charming, cunning
 
+  GameEntity(this.name, this.session) {
+    this.initStatHolder();
+    id = GameEntity.generateID();
+    sylladex = new Sylladex(this);
+    //;
+    //default non player thingy.
+    //if i don't copy this it eventually loses it's required trait and i don't know why
+    this.specibus = SpecibusFactory.CLAWS.copy();
+    //this.addBuff(new BuffSpecibus(this)); //programatic
+    //this.addBuff(new BuffLord(this)); //will only apply if you are a lord, but all have potential
+    //crashes if(getStat(Stats.CURRENT_HEALTH) <= 0) setStat(Stats.CURRENT_HEALTH, 10);
+    ///if(!(this is PotentialSprite) && session != null) session.npcHandler.allEntities.add(this);
+    //players don't start with grist and also null players will crash here cuz apparently no aspect = no stats
+    //if(!(this is Player) && grist <= 0) {
+      // print("trying to set grist for $name");
+      //grist = 113;
+    //}
+  }
 
   //just returns first, hoarding them does nothing.
   MagicalItem get crowned {

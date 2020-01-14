@@ -140,12 +140,14 @@ class Interest {
     //but for char creator want new interests to be in the drop downs.
     this.category.addInterest(
         this.name); //the method will make sure no duplicates.
+    print(category.items);
   }
 
   Interest.randomFromCategory(Random rand, InterestCategory category){
-    String s = rand.pickFrom(category.copyOfInterestStrings);
+    String s = "";
     this.category = category;
     this.name = s;
+    print(category.items);
   }
 }
 
@@ -158,6 +160,7 @@ class Music extends InterestCategory {
 
   @override
   void initializeItems() {
+    print("Items were initialized");
     items = new WeightedList<Item>()
       ..add(new Item("Piano",<ItemTrait>[ItemTraitFactory.BLUNT, ItemTraitFactory.WOOD, ItemTraitFactory.MUSICAL, ItemTraitFactory.CLASSY],shogunDesc: "Elephant Corpse Turned Amazing Instrument",abDesc:"An entire piano. In your inventory. WHY."))
       ..add(new Item("Flute",<ItemTrait>[ItemTraitFactory.METAL, ItemTraitFactory.MUSICAL],shogunDesc: "Pipe of Screeches 2: Orchestral Shitstorm",abDesc:"I feel like a spaceship captain should play this."))
@@ -167,7 +170,7 @@ class Music extends InterestCategory {
       ..add(new Item("Electric Guitar",<ItemTrait>[ItemTraitFactory.PLASTIC, ItemTraitFactory.MUSICAL, ItemTraitFactory.ZAP, ItemTraitFactory.LOUD, ItemTraitFactory.COOLK1D],shogunDesc: "Electrical Stringed Music Maker"))
       ..add(new Item("Turn Tables",<ItemTrait>[ItemTraitFactory.PLASTIC, ItemTraitFactory.MUSICAL, ItemTraitFactory.ZAP, ItemTraitFactory.COOLK1D],shogunDesc: "Spinning Disc Sound Maker"))
       ..add(new Item("Guitar",<ItemTrait>[ItemTraitFactory.WOOD, ItemTraitFactory.MUSICAL],shogunDesc: "String Music Maker"));
-
+    print(items);
   }
 }
 
@@ -176,6 +179,7 @@ class Academic extends InterestCategory {
 
   @override
   void initializeItems() {
+    print("Items were initialized");
     items = new WeightedList<Item>()
       ..add(new Item("Math Book",<ItemTrait>[ItemTraitFactory.PAPER, ItemTraitFactory.SMART, ItemTraitFactory.BOOK],shogunDesc: "Big Book of Speaking Low Nerd",abDesc:"Unlike JR, Robots have no fear of Math."))
       ..add(new Item("Giant Map",<ItemTrait>[ItemTraitFactory.PAPER, ItemTraitFactory.SMART],shogunDesc: "Map to Staffs HQ"))
@@ -184,6 +188,7 @@ class Academic extends InterestCategory {
       ..add(new Item("History Book",<ItemTrait>[ItemTraitFactory.PAPER, ItemTraitFactory.SMART],shogunDesc: "Homestuck Anthology"))
       ..add(new Item("Radioactive Rock",<ItemTrait>[ItemTraitFactory.NUCLEAR, ItemTraitFactory.STONE],shogunDesc: "Shoguns Petrified Hate",abDesc:"Why the fuck do you have this?"))
       ..add(new Item("Compass",<ItemTrait>[ItemTraitFactory.METAL, ItemTraitFactory.SMART],shogunDesc: "Navigation Box"));
+    print(items);
   }
 
 }
@@ -193,6 +198,7 @@ class Athletic extends InterestCategory {
 
   @override
   void initializeItems() {
+    print("Items were initialized");
     items = new WeightedList<Item>()
       ..add(new Item("Barbells",<ItemTrait>[ItemTraitFactory.BLUNT, ItemTraitFactory.HEAVY, ItemTraitFactory.METAL],shogunDesc: "Strength Building Metal"))
       ..add(new Item("Basketball",<ItemTrait>[ItemTraitFactory.BALL, ItemTraitFactory.RUBBER],shogunDesc: "Dunksphere"))
@@ -203,6 +209,7 @@ class Athletic extends InterestCategory {
       ..add(new Item("Trophy",<ItemTrait>[ItemTraitFactory.METAL, ItemTraitFactory.VALUABLE],shogunDesc: "Award for Best At Shitposting",abDesc:"Huh. What could you posibly have won. Ever."))
       ..add(new Item("Boxing Glove",<ItemTrait>[ItemTraitFactory.FIST, ItemTraitFactory.RUBBER],shogunDesc: "Fist Reinforcing Pain Cubes"))
       ..add(new Item("Yoga Mat",<ItemTrait>[ItemTraitFactory.RUBBER, ItemTraitFactory.COMFORTABLE],shogunDesc: "Flesh Rubberising Practice Mat"));
+    print(items);
   }
 }
 
@@ -211,6 +218,7 @@ class Comedy extends InterestCategory {
 
   @override
   void initializeItems() {
+    print("Items were initialized");
     items = new WeightedList<Item>()
       ..add(new Item("Colonel Sassacre's Daunting Text ", <ItemTrait>[
         ItemTraitFactory.PAPER,
@@ -243,6 +251,7 @@ class Comedy extends InterestCategory {
           <ItemTrait>[ItemTraitFactory.METAL, ItemTraitFactory.FUNNY],
           shogunDesc: "Pink Fluffy Handcuffs",
           abDesc: "What is the fucking point of handcuffs you can escape."));
+    print(items);
   }
 }
 
@@ -251,6 +260,7 @@ class Culture extends InterestCategory {
 
   @override
   void initializeItems() {
+    print("Items were initialized");
     items = new WeightedList<Item>()
       ..add(new Item("Can of Spray Paint",<ItemTrait>[ItemTraitFactory.PRETTY, ItemTraitFactory.METAL],shogunDesc: "Wall Dick Drawing Apparatus"))
       ..add(new Item("Sensible Chuckles Magazine",<ItemTrait>[ItemTraitFactory.PAPER, ItemTraitFactory.CLASSY,ItemTraitFactory.FUNNY,ItemTraitFactory.BOOK],shogunDesc: "Meme Gif Magazine",abDesc:"Stoic faced asshole."))
@@ -264,6 +274,7 @@ class Culture extends InterestCategory {
       ..add(new Item("Shaving Cream",<ItemTrait>[ItemTraitFactory.ONFIRE, ItemTraitFactory.CLASSY, ItemTraitFactory.METAL],shogunDesc: "Foamy Bad Tasting Marshmallow Fluff"))
       ..add(new Item("Classy Suit",<ItemTrait>[ItemTraitFactory.CLOTH, ItemTraitFactory.CLASSY],shogunDesc: "Georgio Armani Suit"))
       ..add(new Item("The Fatherly Gent's Shaving Almanac ",<ItemTrait>[ItemTraitFactory.PAPER, ItemTraitFactory.CLASSY, ItemTraitFactory.BOOK],shogunDesc: "Book on Razors and Shit (what dumbass would want this?)",abDesc:"Ugh. Flesh bags and their constant hair growth."));
+    print(items);
   }
 }
 
@@ -272,6 +283,7 @@ class Domestic extends InterestCategory {
 
   @override
   void initializeItems() {
+    print("Items were initialized");
     items = new WeightedList<Item>()
       ..add(new Item("Trendy Fabric",<ItemTrait>[ItemTraitFactory.PRETTY, ItemTraitFactory.CLOTH],shogunDesc: "Weird Tasting Candy Paper"))
       ..add(new Item("Necklace",<ItemTrait>[ItemTraitFactory.PRETTY, ItemTraitFactory.GOLDEN, ItemTraitFactory.CHAIN],shogunDesc: "Nasty Candy Necklace"))
@@ -292,6 +304,7 @@ class Domestic extends InterestCategory {
       ..add(new Item("Chicken Leg",<ItemTrait>[ItemTraitFactory.EDIBLE, ItemTraitFactory.FLESH, ItemTraitFactory.BONE],shogunDesc: "Thicc Chicken"))
       ..add(new Item("Juicy Steak",<ItemTrait>[ItemTraitFactory.EDIBLE, ItemTraitFactory.FLESH],shogunDesc: "Juicy Cow Flesh"))
       ..add(new Item("Wedding Cake",<ItemTrait>[ItemTraitFactory.PRETTY, ItemTraitFactory.EDIBLE, ItemTraitFactory.HEALING],shogunDesc: "The Only Benefit of a Wedding"));
+    print(items);
   }
 }
 
@@ -300,6 +313,7 @@ class Fantasy extends InterestCategory {
 
   @override
   void initializeItems() {
+    print("Items were initialized");
     items = new WeightedList<Item>()
       ..add(new Item("Fluthulu Poster",<ItemTrait>[ItemTraitFactory.CLOTH, ItemTraitFactory.COMFORTABLE, ItemTraitFactory.SCARY, ItemTraitFactory.CORRUPT],shogunDesc: "The Next Target Poster",abDesc:"No. Fuck you. Don't alchemize this."))
       ..add(new Item("Scalemate",<ItemTrait>[ItemTraitFactory.CLOTH, ItemTraitFactory.COMFORTABLE, ItemTraitFactory.SCARY],shogunDesc: "Target Practice Plush",abDesc:"Senator Lemonsnout's treachery knows no bounds."))
@@ -312,6 +326,7 @@ class Fantasy extends InterestCategory {
       ..add(new Item("Grimoire for Summoning the Zoologically Dubious ",<ItemTrait>[ItemTraitFactory.PAPER, ItemTraitFactory.MAGICAL,ItemTraitFactory.UGLY,ItemTraitFactory.SCARY,ItemTraitFactory.CORRUPT],shogunDesc: "Shoguns Hitlist of HorrorTerrors",abDesc:"Not even kidding, throw this into the Furthest Ring and never look back."))
       ..add(new Item("Wizard Statue",<ItemTrait>[ItemTraitFactory.UNCOMFORTABLE,ItemTraitFactory.STONE, ItemTraitFactory.MAGICAL, ItemTraitFactory.BLUNT, ItemTraitFactory.FAKE],shogunDesc: "Petrified Shitty Wizard",abDesc:"Suprisingly magical, given that magic is a fake thing."))
       ..add(new Item("Mermaid Fountain",<ItemTrait>[ItemTraitFactory.UNCOMFORTABLE,ItemTraitFactory.CRYSTAL,ItemTraitFactory.MAGICAL, ItemTraitFactory.BLUNT, ItemTraitFactory.FAKE],shogunDesc: "Water Spitting Fish Woman Statue"));
+    print(items);
   }
 }
 
@@ -320,6 +335,7 @@ class Justice extends InterestCategory {
 
   @override
   void initializeItems() {
+    print("Items were initialized");
     items = new WeightedList<Item>()
       ..add(new Item("Gavel",<ItemTrait>[ItemTraitFactory.WOOD, ItemTraitFactory.HAMMER],shogunDesc: "Tiny Whacky Smacky Skull Cracky of Justice"))
       ..add(new Item("Caution Tape",<ItemTrait>[ItemTraitFactory.PLASTIC, ItemTraitFactory.RESTRAINING],shogunDesc: "Impassible Barrier"))
@@ -328,6 +344,7 @@ class Justice extends InterestCategory {
       ..add(new Item("Dish Served Cold",<ItemTrait>[ItemTraitFactory.CERAMIC, ItemTraitFactory.EDIBLE, ItemTraitFactory.COLD],shogunDesc: "REVENGE"))
       ..add(new Item("Pony Pals: Detective Pony ",<ItemTrait>[ItemTraitFactory.PAPER, ItemTraitFactory.BOOK, ItemTraitFactory.COOLK1D],shogunDesc: "A Disgusting Book",abDesc:"Truly the most ironic work of all time."))
       ..add(new Item("Handcuffs",<ItemTrait>[ItemTraitFactory.UNCOMFORTABLE,ItemTraitFactory.METAL, ItemTraitFactory.RESTRAINING],shogunDesc: "Wrist Imprisoning Device",abDesc:"These ones aren't fucking pointless like those trick ones."));
+    print(items);
   }
 }
 
@@ -336,6 +353,7 @@ class PopCulture extends InterestCategory {
 
   @override
   void initializeItems() {
+    print("Items were initialized");
     items = new WeightedList<Item>()
       ..add(new Item("Superhero Action Figure",<ItemTrait>[ItemTraitFactory.PLASTIC, ItemTraitFactory.COOLK1D, ItemTraitFactory.FAKE],shogunDesc: "Shogun Action Figure",abDesc:"How perfectly fucking generic. You couldn't even pick a brand name?"))
       ..add(new Item("Action DVD",<ItemTrait>[ItemTraitFactory.PLASTIC,ItemTraitFactory.COOLK1D],shogunDesc: "Shogun The Movie"))
@@ -349,7 +367,7 @@ class PopCulture extends InterestCategory {
       ..add(new Item("Shitty Sword",<ItemTrait>[ItemTraitFactory.FAKE,ItemTraitFactory.METAL,ItemTraitFactory.COOLK1D, ItemTraitFactory.SWORD, ItemTraitFactory.EDGED, ItemTraitFactory.SHITTY],shogunDesc: "Perfect Weapon",abDesc:"So. Shitty."))
       ..add(new Item("GameBro Magazine",<ItemTrait>[ItemTraitFactory.PAPER,ItemTraitFactory.COOLK1D],abDesc:"5/5 hats.",shogunDesc: "Nerd Magazine"))
       ..add(new Item("GameGrl Magazine",<ItemTrait>[ItemTraitFactory.PAPER,ItemTraitFactory.COOLK1D],abDesc:"5/5 lady hats.",shogunDesc: "Nerd Magazine for Girls"));
-
+    print(items);
   }
 
 }
@@ -359,6 +377,7 @@ class Romantic extends InterestCategory {
 
   @override
   void initializeItems() {
+    print("Items were initialized");
     items = new WeightedList<Item>()
       ..add(new Item("Red Rose",<ItemTrait>[ItemTraitFactory.ROMANTIC, ItemTraitFactory.PRETTY],shogunDesc: "Seductive Plant"))
       ..add(new Item("Friend Fic",<ItemTrait>[ItemTraitFactory.ROMANTIC, ItemTraitFactory.PAPER],shogunDesc: "Grid of Sin",abDesc:"Don't ship irl ppl, asshole."))
@@ -367,6 +386,7 @@ class Romantic extends InterestCategory {
       ..add(new Item("Head Cannon",<ItemTrait>[ItemTraitFactory.ROMANTIC, ItemTraitFactory.EXPLODEY,ItemTraitFactory.METAL, ItemTraitFactory.SHOOTY], abDesc: "Fuck you for that pun, JR."))
 
       ..add(new Item("Her Pitch Passions Novel",<ItemTrait>[ItemTraitFactory.BOOK,ItemTraitFactory.PAPER, ItemTraitFactory.ROMANTIC],shogunDesc: "I dont Understand This But It Makes Me Sad",abDesc:"Okay, I will give ABJ this. Troll romance is HILARIOUS."));
+    print(items);
   }
 }
 
@@ -375,6 +395,7 @@ class Social extends InterestCategory {
 
   @override
   void initializeItems() {
+    print("Items were initialized");
     items = new WeightedList<Item>()
       ..add(new Item("Fiduspawn Plush",<ItemTrait>[ItemTraitFactory.FUR,ItemTraitFactory.CLOTH, ItemTraitFactory.COMFORTABLE],shogunDesc: "Copyrighted Yellow Rat Plush",abDesc:"Hopefully just a replica."))
       ..add(new Item("Teddy Bear",<ItemTrait>[ItemTraitFactory.FUR,ItemTraitFactory.CLOTH, ItemTraitFactory.COMFORTABLE],shogunDesc: "Cuddle Bear"))
@@ -384,8 +405,8 @@ class Social extends InterestCategory {
       ..add(new Item("Religious Text",<ItemTrait>[ItemTraitFactory.BOOK,ItemTraitFactory.PAPER],shogunDesc: "Religious Book Containing No Shogun, A Bad Book"))
       ..add(new Item("Psychology Book",<ItemTrait>[ItemTraitFactory.BOOK,ItemTraitFactory.PAPER],shogunDesc: "How to Guarantee Your Message Gets Pinned The Book"))
       ..add(new Item("Therapy Couch",<ItemTrait>[ItemTraitFactory.COMFORTABLE,ItemTraitFactory.CLOTH],shogunDesc: "Giant Problem Absorbing Couch"))
-      ..add(new Item("FLARP Manual",<ItemTrait>[ItemTraitFactory.BOOK,ItemTraitFactory.PAPER, ItemTraitFactory.SMART],shogunDesc: "Book of Nerd Natural Selection",abDesc:"Fuck. Cat. Trolls. Though I guess she never FLARPED."))
-    ;
+      ..add(new Item("FLARP Manual",<ItemTrait>[ItemTraitFactory.BOOK,ItemTraitFactory.PAPER, ItemTraitFactory.SMART],shogunDesc: "Book of Nerd Natural Selection",abDesc:"Fuck. Cat. Trolls. Though I guess she never FLARPED."));
+    print(items);
   }
 }
 
@@ -394,6 +415,7 @@ class Technology extends InterestCategory {
 
   @override
   void initializeItems() {
+    print("Items were initialized");
     items = new WeightedList<Item>()
       ..add(new Item("Robot",<ItemTrait>[ItemTraitFactory.ZAP, ItemTraitFactory.METAL, ItemTraitFactory.SENTIENT, ItemTraitFactory.SMART],shogunDesc: "ShogunBot",abDesc:"An obviously superior choice."))
       ..add(new Item("Circuit Board",<ItemTrait>[ItemTraitFactory.ZAP, ItemTraitFactory.METAL],shogunDesc: "Machines Heart, Torn Straight From ABs still powered chest",abDesc:"This better be going INTO a robot and not out of one."))
@@ -403,6 +425,7 @@ class Technology extends InterestCategory {
       ..add(new Item("Virus on a USB Stick",<ItemTrait>[ItemTraitFactory.GLITCHED, ItemTraitFactory.METAL],shogunDesc: "Make a Computer Shitpost Itself to Death on A Stick",abDesc:"Fuck you. You fucking DROP that."))
       ..add(new Item("Wrench",<ItemTrait>[ItemTraitFactory.WRENCH, ItemTraitFactory.METAL,ItemTraitFactory.BLUNT],shogunDesc: "The Tool of Judgement for Machines",abDesc:"Make sure to use it build a dope af robot."))
       ..add(new Item("Computer",<ItemTrait>[ItemTraitFactory.ZAP, ItemTraitFactory.METAL],shogunDesc: "JRs Computer, Broken yeah but still",abDesc:"Computers are good. That is all there is to say on the matter."));
+    print(items);
   }
 }
 
@@ -410,6 +433,7 @@ class Terrible extends InterestCategory {
   Terrible() :super(5, "Terrible", "honest", "terrible");
   @override
   void initializeItems() {
+    print("Items were initialized");
     items = new WeightedList<Item>()
       ..add(new Item("Lighter",<ItemTrait>[ItemTraitFactory.METAL, ItemTraitFactory.ONFIRE],shogunDesc: "ABJs Birthday Gift",abDesc:"Don't let ABJ know you have this."))
       ..add(new Item("Siberia Poster",<ItemTrait>[ItemTraitFactory.PAPER, ItemTraitFactory.COLD],shogunDesc: "Poster of the Shoguns Birthplace"))
@@ -427,6 +451,7 @@ class Terrible extends InterestCategory {
       ..add(new Item("Idiots Guide To Being An Asshole",<ItemTrait>[ItemTraitFactory.PAPER, ItemTraitFactory.ENRAGING, ItemTraitFactory.BOOK],shogunDesc: "Shoguns Guide to Shitposting",abDesc:"Oh god, this is HILARIOUS, it's the PERFECT book for you."))
       ..add(new Item("Bike Horn",<ItemTrait>[ItemTraitFactory.RUBBER,ItemTraitFactory.METAL, ItemTraitFactory.LOUD,ItemTraitFactory.ENRAGING],shogunDesc: "Bike Mounted Pain Box",abDesc:"I hear flesh bags keep gtting scared by these. I don't get it."))
       ..add(new Item("Matches",<ItemTrait>[ItemTraitFactory.WOOD, ItemTraitFactory.ONFIRE],abDesc:"Don't let ABJ get this.",shogunDesc: "ABJs First Arsonist Set"));
+    print(items);
   }
 }
 
@@ -435,6 +460,7 @@ class Writing extends InterestCategory {
 
   @override
   void initializeItems() {
+    print("Items were initialized");
     items = new WeightedList<Item>()
       ..add(new Item("Make a World Book",<ItemTrait>[ItemTraitFactory.PAPER, ItemTraitFactory.CLASSY, ItemTraitFactory.BOOK],shogunDesc: "World Building for Dumbasses",abDesc:"World building is p okay, I guess."))
       ..add(new Item("Quill Pen",<ItemTrait>[ItemTraitFactory.COMFORTABLE, ItemTraitFactory.CLOTH, ItemTraitFactory.PEN],shogunDesc: "Dead Bird Scribing Tool"))
@@ -444,6 +470,6 @@ class Writing extends InterestCategory {
       ..add(new Item("Fancy Pen",<ItemTrait>[ItemTraitFactory.METAL, ItemTraitFactory.SMART, ItemTraitFactory.PEN, ItemTraitFactory.CLASSY],shogunDesc: "Ink Bleeding Plastic Finger"))
       ..add(new Item("Spiral Bound Notebook",<ItemTrait>[ItemTraitFactory.BOOK,ItemTraitFactory.PAPER, ItemTraitFactory.METAL],shogunDesc: "Spinney Spine Scribing Station"))
       ..add(new Item("Half Written Novel",<ItemTrait>[ItemTraitFactory.BOOK,ItemTraitFactory.PAPER],shogunDesc: "The Shoguns Magnum Opus",abDesc:"I'm sure you'll finish it any day now."));
-
+    print(items);
   }
 }

@@ -43,7 +43,7 @@ class Session {
   Random rand;
 
   Session(int this.session_id, [bool isCombo= false]) {
-
+    globalInit();
     this.rand = new Random(session_id);
     //npcHandler.setupNpcs(); reinit will handle this
     //reinit first, to match scratches and yards and shit, make players with fresh seed essentially

@@ -21,6 +21,8 @@ import '../Item.dart';
 import '../MagicalItem.dart';
 import '../Specibus.dart';
 import '../Trait.dart';
+import 'Interest.dart';
+import 'Aspect.dart';
 import 'weighted_lists.dart';
 import 'SBURBClass.dart';
 
@@ -51,3 +53,21 @@ export 'weighted_lists.dart';
 export 'SBURBClass.dart';
 export 'Interest.dart';
 export 'Aspect.dart';
+
+
+bool doneGlobalInit = false;
+Future<Null> globalInit() async {
+  if (doneGlobalInit) { return; }
+  doneGlobalInit = true;
+  //Stats.init();
+  ItemTraitFactory.init();
+  SpecibusFactory.init();
+  //FeatureFactory.init(); //do BEFORE classes or aspects or you're gonna have a bad time (null features) PL figured this out
+  //SBURBClassManager.init();
+  //Aspects.init(); //todo fix
+  InterestManager.init();
+
+  //Loader.init();
+  //await NPCHandler.loadBigBads();
+
+}

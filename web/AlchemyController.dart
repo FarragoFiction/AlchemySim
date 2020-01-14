@@ -5,12 +5,12 @@ import 'scripts/dependencies/random_tables.dart';
 import 'scripts/Trait.dart';
 import 'scripts/dependencies/colour.dart';
 import 'scripts/dependencies/SBURBSim.dart';
+import 'scripts/dependencies/session.dart';
 import 'scripts/dependencies/navbar.dart';
 import 'scripts/dependencies/random.dart';
 import 'scripts/dependencies/handle_sprites.dart';
 import 'scripts/dependencies/Player.dart';
 import 'scripts/dependencies/player_functions.dart';
-import 'scripts/dependencies/session.dart';
 import 'scripts/dependencies/Gristmas.dart';
 import 'scripts/dependencies/GameEntity.dart';
 import 'scripts/AlchemyResult.dart';
@@ -67,7 +67,7 @@ void main()  {
 }
 
 Future<Null> start() async {
-  //await globalInit();
+  await globalInit();
 
   init();
   Element quipDiv = querySelector("#quip");
@@ -196,8 +196,10 @@ void init() {
   item1SelSpot = querySelector("#item1Sel");
   operatorSelSpot = querySelector("#opSel");
   item2SelSpot = querySelector("#item2Sel");
-  player = randomPlayer(new Session(int.parse(todayToSession())));
   achivementDiv = querySelector("#achievements");
+
+  //InterestManager.init();
+  player = randomPlayer(new Session(int.parse(todayToSession())));
 
 
   Achievement.gristDiv = querySelector("#grist");

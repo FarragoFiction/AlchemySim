@@ -18,7 +18,9 @@ class Player extends GameEntity{
   bool isTroll = false; //later
   String bloodColor = "#ff0000"; //human red.
 
-  @override
+
+  Player([Session session, SBURBClass this.class_name, Aspect this.aspect]) : super("", session);
+    @override
   String get name => "${title()}($chatHandle)";
 
   @override
