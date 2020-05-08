@@ -85,7 +85,7 @@ body{
  width: 150px;
  border: 3px solid #9630bf;
  vertical-align: top;
- text-align: middle;
+ text-align: center;
  background-color: #cc87e8;
  overflow:  hidden;
 }
@@ -174,7 +174,7 @@ select option{
   margin: 5px;
   width: 150px;
   border: 3px solid #bdb968;
-  text-align: middle;
+  text-align: center;
   background-color: #fcf9bd;
   overflow: hidden;
 }
@@ -188,7 +188,7 @@ select option{
     width: 150px;
     border: 3px solid #AAAAAA;
     vertical-align: top;
-    text-align: middle;
+    text-align: center;
     background-color: #BBBBBB;
 }
 
@@ -200,7 +200,7 @@ select option{
     padding: 5px;
     width: 150px;
     border: 3px solid #9630bf;
-    text-align: middle;
+    text-align: center;
     background-color: #cc87e8;
 }
 
@@ -208,7 +208,7 @@ td{
     padding: 10px;
     width: 30%;
     text-align: center;
-     color: #9630bf;
+    color: #9630bf;
 
 }
 .oneTrait{
